@@ -1,27 +1,50 @@
+from typing import Optional, Iterable, Tuple
 from game.board import Board
 
+Move = Tuple[int, int]
 
-def format_board(board: Board) -> str:
-    """格式化棋盘字符串"""
-    # 每格宽度
-    cell_w = 3
+RED = "\033[91m"
+RESET = "\033[0m"
 
-    # 列号
-    header = " " * (cell_w) + "".join(f"{c:>{cell_w}}" for c in range(board.size))
-    rows = [header]
 
-    # 行内容
+def format_board(board: Board, highlight: Optional[Iterable[Move]] = None) -> str:
+    """
+    Format board as string.
+    If highlight is provided, those positions are shown in red.
+    """
+    highlight_set = set(highlight) if highlight else set()
+
+    lines = []
+
+    header = "    " + " ".join(f"{i:2}" for i in range(board.size))
+    lines.append(header)
+
     for r in range(board.size):
-        line = [f"{r:>{cell_w - 1}} "]  # 行号
+        row = [f"{r:2} "]
+
         for c in range(board.size):
-            v = board.grid[r][c]
-            ch = "·" if v == 0 else ("X" if v == 1 else "O")
-            line.append(f"{ch:>{cell_w}}")
-        rows.append("".join(line))
+            value = board.get(r, c)
 
-    return "\n".join(rows)
+            if value == 1:
+                symbol = "X"
+            elif value == -1:
+                symbol = "O"
+            else:
+                symbol = "."
+
+            if (r, c) in highlight_set:
+                symbol = f"{RED}{symbol}{RESET}"
+
+            row.append(f"{symbol:>2}")
+
+        lines.append(" ".join(row))
+
+    return "\n".join(lines)
 
 
-def print_board(board: Board) -> None:
-    """打印棋盘"""
-    print(format_board(board))
+def print_board(board: Board, highlight: Optional[Iterable[Move]] = None) -> None:
+    """
+    Print board.
+    Winning stones can be highlighted in red.
+    """
+    print(format_board(board, highlight))

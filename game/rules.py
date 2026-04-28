@@ -1,55 +1,48 @@
-from typing import List, Optional, Tuple, Set
+from typing import Optional, Tuple, List
 from game.board import Board
 
 Move = Tuple[int, int]
 
-
-def is_terminal(board: Board) -> bool:
-    """判断游戏是否结束"""
-    # 检查最后一步是否导致胜利
-    last_move = board.last_move()
-    if last_move:
-        r, c, player = last_move
-        if check_win_at(board, r, c):
-            return True
-    
-    # 检查棋盘是否已满
-    return len(board.stones) == board.size * board.size
+DIRECTIONS = [
+    (1, 0),     # vertical
+    (0, 1),     # horizontal
+    (1, 1),     # diagonal down-right
+    (1, -1),    # diagonal down-left
+]
 
 
-def get_winner(board: Board) -> Optional[int]:
-    """获取胜利者"""
-    last_move = board.last_move()
-    if last_move:
-        r, c, player = last_move
-        if check_win_at(board, r, c):
-            return player
-    return None
+def in_bounds(board: Board, r: int, c: int) -> bool:
+    """
+    Check whether a position is inside the board.
+    """
+    return 0 <= r < board.size and 0 <= c < board.size
 
 
 def check_win_at(board: Board, r: int, c: int) -> bool:
-    """检查指定位置是否形成五连"""
+    """
+    Check whether the stone at (r, c) forms five in a row.
+    """
     player = board.get(r, c)
+
     if player == 0:
         return False
 
-    dirs = [(0, 1), (1, 0), (1, 1), (1, -1)]
-    for dr, dc in dirs:
+    for dr, dc in DIRECTIONS:
         count = 1
 
-        # 正向检查
-        rr, cc = r + dr, c + dc
-        while board.in_bounds(rr, cc) and board.get(rr, cc) == player:
+        # Forward direction
+        nr, nc = r + dr, c + dc
+        while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
             count += 1
-            rr += dr
-            cc += dc
+            nr += dr
+            nc += dc
 
-        # 反向检查
-        rr, cc = r - dr, c - dc
-        while board.in_bounds(rr, cc) and board.get(rr, cc) == player:
+        # Backward direction
+        nr, nc = r - dr, c - dc
+        while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
             count += 1
-            rr -= dr
-            cc -= dc
+            nr -= dr
+            nc -= dc
 
         if count >= 5:
             return True
@@ -57,36 +50,115 @@ def check_win_at(board: Board, r: int, c: int) -> bool:
     return False
 
 
+def find_winning_line(board: Board) -> Optional[List[Move]]:
+    """
+    Return the winning line if there is one.
+
+    Return:
+        List of 5 positions if a player has five in a row.
+        None if there is no winner.
+    """
+    for r, c in board.stones:
+        player = board.get(r, c)
+
+        if player == 0:
+            continue
+
+        for dr, dc in DIRECTIONS:
+            line: List[Move] = [(r, c)]
+
+            # Forward direction
+            nr, nc = r + dr, c + dc
+            while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+                line.append((nr, nc))
+                nr += dr
+                nc += dc
+
+            # Backward direction
+            nr, nc = r - dr, c - dc
+            while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+                line.insert(0, (nr, nc))
+                nr -= dr
+                nc -= dc
+
+            if len(line) >= 5:
+                return line[:5]
+
+    return None
+
+
+def get_winner(board: Board) -> Optional[int]:
+    """
+    Return the winner.
+
+    Return:
+        1    if black wins
+        -1   if white wins
+        None if no player wins
+    """
+    winning_line = find_winning_line(board)
+
+    if winning_line is None:
+        return None
+
+    r, c = winning_line[0]
+    return board.get(r, c)
+
+
+def is_full(board: Board) -> bool:
+    """
+    Return True if the board is full.
+    """
+    return len(board.stones) >= board.size * board.size
+
+
+def is_terminal(board: Board) -> bool:
+    """
+    Return True if the game is over.
+
+    The game is over if:
+    1. A player has five in a row.
+    2. The board is full.
+    """
+    return get_winner(board) is not None or is_full(board)
+
+
 def generate_legal_moves(board: Board) -> List[Move]:
-    """生成所有合法走法"""
+    """
+    Generate all legal moves on the board.
+    """
     moves: List[Move] = []
+
     for r in range(board.size):
         for c in range(board.size):
-            if board.grid[r][c] == 0:
+            if board.is_empty(r, c):
                 moves.append((r, c))
+
     return moves
 
 
 def generate_candidate_moves(board: Board, radius: int = 2) -> List[Move]:
     """
-    AI推荐用：只返回已有棋子附近 radius 范围内的空点
+    Generate candidate moves around existing stones.
+
+    This is used to reduce the branching factor for Minimax / Alpha-Beta.
+
+    If the board is empty, return the center position.
+    Otherwise, return all empty cells within the given radius of existing stones.
     """
-    if not board.stones:
-        mid = board.size // 2
-        return [(mid, mid)]
+    if len(board.stones) == 0:
+        center = board.size // 2
+        return [(center, center)]
 
-    candidates: Set[Move] = set()
+    candidates = set()
 
-    for r0, c0 in board.stones:
+    for r, c in board.stones:
         for dr in range(-radius, radius + 1):
             for dc in range(-radius, radius + 1):
-                r, c = r0 + dr, c0 + dc
-                if board.is_empty(r, c):
-                    candidates.add((r, c))
+                nr = r + dr
+                nc = c + dc
 
-    # 按离中心距离排序（提高剪枝效率）
-    mid = (board.size - 1) / 2
-    return sorted(
-        candidates,
-        key=lambda mv: (mv[0] - mid) ** 2 + (mv[1] - mid) ** 2
-    )
+                if in_bounds(board, nr, nc) and board.is_empty(nr, nc):
+                    candidates.add((nr, nc))
+
+    return list(candidates)

@@ -1,37 +1,98 @@
-import random
-from typing import Tuple
 from game.board import Board
-from game.rules import generate_candidate_moves
 
-Move = Tuple[int, int]
+WIN_SCORE = 1_000_000
+
+DIRECTIONS = [
+    (1, 0),
+    (0, 1),
+    (1, 1),
+    (1, -1),
+]
 
 
-def eval_basic(board: Board, player: int) -> float:
-    """基础评估函数 - 随机选择"""
-    return random.uniform(-1, 1)
+def in_bounds(board: Board, r: int, c: int) -> bool:
+    return 0 <= r < board.size and 0 <= c < board.size
 
 
-def eval_intermediate(board: Board, player: int) -> float:
-    """中级评估函数 - 基于棋子位置和连子数"""
-    score = 0.0
-    
-    # 简单的评估逻辑（待完善）
+def has_five(board: Board, player: int) -> bool:
     for r, c in board.stones:
-        if board.get(r, c) == player:
-            score += 1.0
-        else:
-            score -= 1.0
-    
+        if board.get(r, c) != player:
+            continue
+
+        for dr, dc in DIRECTIONS:
+            count = 1
+
+            nr, nc = r + dr, c + dc
+            while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+                count += 1
+                nr += dr
+                nc += dc
+
+            nr, nc = r - dr, c - dc
+            while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+                count += 1
+                nr -= dr
+                nc -= dc
+
+            if count >= 5:
+                return True
+
+    return False
+
+
+def count_line(board: Board, r: int, c: int, dr: int, dc: int, player: int) -> int:
+    count = 1
+
+    nr, nc = r + dr, c + dc
+    while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+        count += 1
+        nr += dr
+        nc += dc
+
+    nr, nc = r - dr, c - dc
+    while in_bounds(board, nr, nc) and board.get(nr, nc) == player:
+        count += 1
+        nr -= dr
+        nc -= dc
+
+    return count
+
+
+def pattern_score(board: Board, player: int) -> float:
+    score = 0.0
+
+    weights = {
+        1: 1,
+        2: 10,
+        3: 100,
+        4: 10_000,
+    }
+
+    for r, c in board.stones:
+        if board.get(r, c) != player:
+            continue
+
+        for dr, dc in DIRECTIONS:
+            length = count_line(board, r, c, dr, dc, player)
+
+            if length >= 5:
+                score += WIN_SCORE
+            else:
+                score += weights.get(length, 0)
+
     return score
 
 
-def eval_advanced(board: Board, player: int) -> float:
-    """高级评估函数 - 考虑棋型和威胁"""
-    # 更复杂的评估逻辑（待实现）
-    return eval_intermediate(board, player)
+def eval_basic(board: Board, player: int) -> float:
+    """
+    固定 evaluation，用来测试不同 depth。
 
+    分数越高，说明局面对 player 越好。
+    """
+    if has_five(board, player):
+        return float(WIN_SCORE)
 
-def ai_move_basic(board: Board) -> Move:
-    """基础AI走法（随机选择候选点）"""
-    moves = generate_candidate_moves(board, radius=2)
-    return random.choice(moves)
+    if has_five(board, -player):
+        return float(-WIN_SCORE)
+
+    return pattern_score(board, player) - pattern_score(board, -player)
