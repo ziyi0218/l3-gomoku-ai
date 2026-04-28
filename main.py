@@ -230,25 +230,34 @@ def print_final_result(
     name1: str,
     name2: str,
     move_count: Optional[int] = None,
+    total_time: Optional[float] = None,
 ) -> None:
     """
-    Print final board with highlighted winning line.
+    Print final board state after a game.
+    If there is a winner, highlight the winning line.
     """
     winner = get_winner(board)
     winning_line = find_winning_line(board)
 
+    print("\n========== Final Board ==========")
     print_board(board, highlight=winning_line)
 
+    print("\n========== Game Result ==========")
+
     if winner == player1:
-        print(f"\n{name1} wins!")
+        print(f"Winner: {name1}")
     elif winner == player2:
-        print(f"\n{name2} wins!")
+        print(f"Winner: {name2}")
     else:
-        print("\nDraw!")
+        print("Result: Draw")
 
     if move_count is not None:
         print(f"Total moves: {move_count}")
 
+    if total_time is not None:
+        print(f"Total time: {total_time:.4f}s")
+
+    print("=================================\n")
 
 # ============================================================
 # Human vs AI
@@ -490,8 +499,96 @@ def benchmark_depths() -> None:
     - Game 1: depth A as black, depth B as white
     - Game 2: depth B as black, depth A as white
 
-    This swaps first player advantage.
+    This swaps first-player advantage.
+
+    Each game prints:
+    - final board
+    - winner
+    - total moves
+    - total time
+    - average time per move
+    - average nodes per move
     """
+
+    def run_one_benchmark_game(
+        black_depth: int,
+        white_depth: int,
+        max_moves: int,
+    ) -> GameResult:
+        """
+        Run one AI vs AI game and print the final board.
+        Black always plays first.
+        """
+        board = Board(15)
+
+        BLACK = 1
+        WHITE = -1
+        current = BLACK
+
+        move_count = 0
+
+        black_times: List[float] = []
+        white_times: List[float] = []
+        black_nodes: List[int] = []
+        white_nodes: List[int] = []
+
+        game_start = time.perf_counter()
+
+        while move_count < max_moves:
+            depth = black_depth if current == BLACK else white_depth
+
+            move, move_stats = ai_move_minimax_with_stats(
+                board=board,
+                player=current,
+                depth=depth,
+            )
+
+            r, c = move
+            board.place(r, c, current)
+            move_count += 1
+
+            if current == BLACK:
+                black_times.append(move_stats.time_seconds)
+                black_nodes.append(move_stats.nodes)
+            else:
+                white_times.append(move_stats.time_seconds)
+                white_nodes.append(move_stats.nodes)
+
+            if is_terminal(board):
+                break
+
+            current = WHITE if current == BLACK else BLACK
+
+        total_time = time.perf_counter() - game_start
+        winner = get_winner(board)
+
+        result = GameResult(
+            winner=winner,
+            moves=move_count,
+            total_time=total_time,
+
+            black_depth=black_depth,
+            white_depth=white_depth,
+
+            black_avg_time=average(black_times),
+            white_avg_time=average(white_times),
+
+            black_avg_nodes=average(black_nodes),
+            white_avg_nodes=average(white_nodes),
+        )
+
+        print_final_result(
+            board=board,
+            player1=BLACK,
+            player2=WHITE,
+            name1=f"Black depth {black_depth}",
+            name2=f"White depth {white_depth}",
+            move_count=move_count,
+            total_time=total_time,
+        )
+
+        return result
+
     print("\nDepth benchmark mode")
     print("This mode compares selected search depths.")
     print("Each matchup is played twice: once with each depth starting first.")
@@ -531,7 +628,13 @@ def benchmark_depths() -> None:
     print(f"Total games: {total_games}")
 
     for index, (black_depth, white_depth) in enumerate(matchups, start=1):
-        result = play_ai_game_silent(
+        print("\n========================================")
+        print(f"Benchmark game {index}/{total_games}")
+        print(f"Black: depth {black_depth}")
+        print(f"White: depth {white_depth}")
+        print("========================================")
+
+        result = run_one_benchmark_game(
             black_depth=black_depth,
             white_depth=white_depth,
             max_moves=max_moves,
@@ -543,9 +646,11 @@ def benchmark_depths() -> None:
         if result.winner == 1:
             score_by_depth[result.black_depth] += 1.0
             score_by_depth[result.white_depth] += 0.0
+
         elif result.winner == -1:
             score_by_depth[result.black_depth] += 0.0
             score_by_depth[result.white_depth] += 1.0
+
         else:
             score_by_depth[result.black_depth] += 0.5
             score_by_depth[result.white_depth] += 0.5
