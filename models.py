@@ -11,6 +11,7 @@ EvalFn = Callable[[Board, int], float]
 class MoveStats:
     time_seconds: float
     nodes: int
+    pruning_count: int = 0
 
 
 @dataclass
@@ -30,3 +31,6 @@ class GameResult:
 
     black_avg_nodes: float
     white_avg_nodes: float
+
+    black_avg_prunes: float = 0.0
+    white_avg_prunes: float = 0.0

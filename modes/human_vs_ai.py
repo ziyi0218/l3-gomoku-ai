@@ -1,5 +1,5 @@
-from ai.player import ai_move_minimax
-from cli.input import ask_depth, ask_evaluation, parse_move
+from ai.player import ai_move
+from cli.input import ask_depth, ask_evaluation, ask_search_algorithm, parse_move
 from cli.output import print_final_result
 from game.board import Board
 from game.rules import is_terminal
@@ -17,10 +17,14 @@ def play_human_vs_ai() -> None:
 
     depth = ask_depth()
 
+    print("\nChoose search algorithm for AI:")
+    search_name = ask_search_algorithm()
+
     print("\nChoose evaluation for AI:")
     eval_fn, eval_name = ask_evaluation()
 
     print("\nHuman vs AI started.")
+    print(f"AI search = {search_name}")
     print(f"AI depth = {depth}")
     print(f"AI evaluation = {eval_name}")
     print("Input: row col, for example: 7 7 or 7,7")
@@ -65,12 +69,13 @@ def play_human_vs_ai() -> None:
             current = AI
 
         else:
-            r, c = ai_move_minimax(
+            r, c = ai_move(
                 board=board,
                 player=AI,
                 depth=depth,
                 eval_fn=eval_fn,
                 eval_name=eval_name,
+                search_name=search_name,
             )
 
             board.place(r, c, AI)

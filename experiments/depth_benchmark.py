@@ -1,6 +1,12 @@
 from typing import Dict, List, Tuple
 
-from cli.input import ask_depth_list, ask_evaluation, ask_int, ask_positive_int
+from cli.input import (
+    ask_depth_list,
+    ask_evaluation,
+    ask_int,
+    ask_positive_int,
+    ask_search_algorithm,
+)
 from cli.output import average, print_game_result
 from experiments.benchmark import run_one_benchmark_game
 
@@ -20,6 +26,9 @@ def benchmark_depths() -> None:
 
     print("\nChoose the evaluation function used for all depths:")
     eval_fn, eval_name = ask_evaluation()
+
+    print("\nChoose the search algorithm used for all depths:")
+    search_name = ask_search_algorithm()
 
     games_per_side = ask_positive_int(
         "\nHow many games for each side order? "
@@ -63,14 +72,15 @@ def benchmark_depths() -> None:
 
     print("\nRunning depth benchmark...")
     print(f"Selected depths: {depths}")
+    print(f"Fixed search: {search_name}")
     print(f"Fixed evaluation: {eval_name}")
     print(f"Total games: {total_games}")
 
     for index, (black_depth, white_depth) in enumerate(matchups, start=1):
         print("\n========================================")
         print(f"Benchmark game {index}/{total_games}")
-        print(f"Black: depth {black_depth}, {eval_name}")
-        print(f"White: depth {white_depth}, {eval_name}")
+        print(f"Black: {search_name}, depth {black_depth}, {eval_name}")
+        print(f"White: {search_name}, depth {white_depth}, {eval_name}")
         print("========================================")
 
         result = run_one_benchmark_game(
@@ -83,6 +93,8 @@ def benchmark_depths() -> None:
             max_moves=max_moves,
             print_final_board=print_final_boards,
             print_each_step=print_each_step,
+            black_search_name=search_name,
+            white_search_name=search_name,
         )
 
         print_game_result(result, index, total_games)
@@ -107,6 +119,7 @@ def benchmark_depths() -> None:
         nodes_by_depth[result.white_depth].append(result.white_avg_nodes)
 
     print("\n========== Depth Benchmark Summary ==========")
+    print(f"Fixed search: {search_name}")
     print(f"Fixed evaluation: {eval_name}")
     print(
         f"{'Depth':<8}"

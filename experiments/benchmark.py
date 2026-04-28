@@ -1,7 +1,7 @@
 import time
 from typing import List
 
-from ai.player import ai_move_minimax_with_stats
+from ai.player import SEARCH_ALPHABETA, ai_move_with_stats
 from cli.output import average, print_final_result
 from game.board import Board
 from game.rules import get_winner, is_terminal
@@ -19,6 +19,8 @@ def run_one_benchmark_game(
     max_moves: int,
     print_final_board: bool,
     print_each_step: bool = False,
+    black_search_name: str = SEARCH_ALPHABETA,
+    white_search_name: str = SEARCH_ALPHABETA,
 ) -> GameResult:
     """
     Run one AI vs AI game for benchmark.
@@ -37,6 +39,8 @@ def run_one_benchmark_game(
     white_times: List[float] = []
     black_nodes: List[int] = []
     white_nodes: List[int] = []
+    black_prunes: List[int] = []
+    white_prunes: List[int] = []
 
     game_start = time.perf_counter()
 
@@ -49,18 +53,21 @@ def run_one_benchmark_game(
             depth = black_depth
             eval_fn = black_eval_fn
             eval_name = black_eval_name
+            search_name = black_search_name
             player_name = "Black"
         else:
             depth = white_depth
             eval_fn = white_eval_fn
             eval_name = white_eval_name
+            search_name = white_search_name
             player_name = "White"
 
-        move, move_stats = ai_move_minimax_with_stats(
+        move, move_stats = ai_move_with_stats(
             board=board,
             player=current,
             depth=depth,
             eval_fn=eval_fn,
+            search_name=search_name,
         )
 
         r, c = move
@@ -70,18 +77,22 @@ def run_one_benchmark_game(
         if current == BLACK:
             black_times.append(move_stats.time_seconds)
             black_nodes.append(move_stats.nodes)
+            black_prunes.append(move_stats.pruning_count)
         else:
             white_times.append(move_stats.time_seconds)
             white_nodes.append(move_stats.nodes)
+            white_prunes.append(move_stats.pruning_count)
 
         if print_each_step:
             print("\n----------------------------------------")
             print(f"Move {move_count}")
             print(f"{player_name} plays: {r} {c}")
+            print(f"Search: {search_name}")
             print(f"Depth: {depth}")
             print(f"Evaluation: {eval_name}")
             print(f"Time: {move_stats.time_seconds:.4f}s")
             print(f"Nodes: {move_stats.nodes}")
+            print(f"Prunes: {move_stats.pruning_count}")
             print_board(board)
 
         if is_terminal(board):
@@ -108,6 +119,9 @@ def run_one_benchmark_game(
 
         black_avg_nodes=average(black_nodes),
         white_avg_nodes=average(white_nodes),
+
+        black_avg_prunes=average(black_prunes),
+        white_avg_prunes=average(white_prunes),
     )
 
     if print_final_board:
@@ -115,8 +129,8 @@ def run_one_benchmark_game(
             board=board,
             player1=BLACK,
             player2=WHITE,
-            name1=f"Black depth {black_depth} ({black_eval_name})",
-            name2=f"White depth {white_depth} ({white_eval_name})",
+            name1=f"Black {black_search_name} depth {black_depth} ({black_eval_name})",
+            name2=f"White {white_search_name} depth {white_depth} ({white_eval_name})",
             move_count=move_count,
             total_time=total_time,
         )

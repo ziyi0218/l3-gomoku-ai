@@ -1,5 +1,5 @@
-from ai.player import ai_move_minimax
-from cli.input import ask_depth, ask_evaluation
+from ai.player import ai_move
+from cli.input import ask_depth, ask_evaluation, ask_search_algorithm
 from cli.output import print_final_result
 from game.board import Board
 from game.rules import is_terminal
@@ -18,11 +18,17 @@ def play_ai_vs_ai() -> None:
     print("\nChoose depth for AI1:")
     depth_ai1 = ask_depth()
 
+    print("\nChoose search algorithm for AI1:")
+    search_ai1 = ask_search_algorithm()
+
     print("\nChoose evaluation for AI1:")
     eval_ai1, eval_name_ai1 = ask_evaluation()
 
     print("\nChoose depth for AI2:")
     depth_ai2 = ask_depth()
+
+    print("\nChoose search algorithm for AI2:")
+    search_ai2 = ask_search_algorithm()
 
     print("\nChoose evaluation for AI2:")
     eval_ai2, eval_name_ai2 = ask_evaluation()
@@ -31,29 +37,32 @@ def play_ai_vs_ai() -> None:
     move_count = 0
 
     print("\nAI vs AI started.\n")
-    print(f"AI1 = Black, depth {depth_ai1}, {eval_name_ai1}")
-    print(f"AI2 = White, depth {depth_ai2}, {eval_name_ai2}\n")
+    print(f"AI1 = Black, {search_ai1}, depth {depth_ai1}, {eval_name_ai1}")
+    print(f"AI2 = White, {search_ai2}, depth {depth_ai2}, {eval_name_ai2}\n")
 
     print_board(board)
 
     while True:
         if current == AI1:
             depth = depth_ai1
+            search_name = search_ai1
             eval_fn = eval_ai1
             eval_name = eval_name_ai1
             ai_name = "AI1"
         else:
             depth = depth_ai2
+            search_name = search_ai2
             eval_fn = eval_ai2
             eval_name = eval_name_ai2
             ai_name = "AI2"
 
-        r, c = ai_move_minimax(
+        r, c = ai_move(
             board=board,
             player=current,
             depth=depth,
             eval_fn=eval_fn,
             eval_name=eval_name,
+            search_name=search_name,
         )
 
         board.place(r, c, current)

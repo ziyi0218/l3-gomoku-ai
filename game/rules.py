@@ -161,4 +161,8 @@ def generate_candidate_moves(board: Board, radius: int = 2) -> List[Move]:
                 if in_bounds(board, nr, nc) and board.is_empty(nr, nc):
                     candidates.add((nr, nc))
 
-    return list(candidates)
+    mid = (board.size - 1) / 2
+    return sorted(
+        candidates,
+        key=lambda mv: ((mv[0] - mid) ** 2 + (mv[1] - mid) ** 2, mv[0], mv[1]),
+    )

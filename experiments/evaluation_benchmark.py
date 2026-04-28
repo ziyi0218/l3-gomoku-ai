@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
 from ai.evaluation import eval_advanced, eval_basic, eval_intermediate
-from cli.input import ask_depth, ask_int, ask_positive_int
+from cli.input import ask_depth, ask_int, ask_positive_int, ask_search_algorithm
 from cli.output import average, print_game_result
 from experiments.benchmark import run_one_benchmark_game
 from models import EvalFn
@@ -13,6 +13,9 @@ def benchmark_evaluations() -> None:
     print("This mode compares Eval A, Eval B, and Eval C under the same depth.")
 
     depth = ask_depth()
+
+    print("\nChoose the search algorithm used for all evaluations:")
+    search_name = ask_search_algorithm()
 
     games_per_side = ask_positive_int(
         "\nHow many games for each side order? "
@@ -61,6 +64,7 @@ def benchmark_evaluations() -> None:
     total_games = len(matchups)
 
     print("\nRunning evaluation benchmark...")
+    print(f"Search: {search_name}")
     print(f"Depth: {depth}")
     print(f"Total games: {total_games}")
 
@@ -72,8 +76,8 @@ def benchmark_evaluations() -> None:
     ) in enumerate(matchups, start=1):
         print("\n========================================")
         print(f"Evaluation benchmark game {index}/{total_games}")
-        print(f"Black: {black_eval_name}, depth {depth}")
-        print(f"White: {white_eval_name}, depth {depth}")
+        print(f"Black: {search_name}, {black_eval_name}, depth {depth}")
+        print(f"White: {search_name}, {white_eval_name}, depth {depth}")
         print("========================================")
 
         result = run_one_benchmark_game(
@@ -86,6 +90,8 @@ def benchmark_evaluations() -> None:
             max_moves=max_moves,
             print_final_board=print_final_boards,
             print_each_step=print_each_step,
+            black_search_name=search_name,
+            white_search_name=search_name,
         )
 
         print_game_result(result, index, total_games)
@@ -110,6 +116,7 @@ def benchmark_evaluations() -> None:
         nodes_by_eval[result.white_eval_name].append(result.white_avg_nodes)
 
     print("\n========== Evaluation Benchmark Summary ==========")
+    print(f"Fixed search: {search_name}")
     print(
         f"{'Eval':<10}"
         f"{'Games':<8}"

@@ -3,6 +3,9 @@ from typing import List, Optional, Tuple
 from ai.evaluation import eval_advanced, eval_basic, eval_intermediate
 from models import EvalFn
 
+SEARCH_MINIMAX = "Minimax"
+SEARCH_ALPHABETA = "Alpha-Beta"
+
 
 def parse_move(s: str) -> Optional[Tuple[int, int] | tuple[str, str]]:
     """Parse human input."""
@@ -107,3 +110,16 @@ def ask_evaluation() -> Tuple[EvalFn, str]:
     if choice == 2:
         return eval_intermediate, "Eval B"
     return eval_advanced, "Eval C"
+
+
+def ask_search_algorithm() -> str:
+    """Ask user to choose a search algorithm."""
+    print("\nChoose search algorithm:")
+    print("1. Minimax")
+    print("2. Alpha-Beta pruning")
+
+    choice = ask_int("Your choice: ", [1, 2])
+
+    if choice == 1:
+        return SEARCH_MINIMAX
+    return SEARCH_ALPHABETA

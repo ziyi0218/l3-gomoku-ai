@@ -80,11 +80,13 @@ def print_game_result(result: GameResult, game_index: int, total_games: int) -> 
     print(
         f"Black depth {result.black_depth} | "
         f"avg time/move={result.black_avg_time:.4f}s | "
-        f"avg nodes/move={result.black_avg_nodes:.1f}"
+        f"avg nodes/move={result.black_avg_nodes:.1f} | "
+        f"avg prunes/move={result.black_avg_prunes:.1f}"
     )
 
     print(
         f"White depth {result.white_depth} | "
         f"avg time/move={result.white_avg_time:.4f}s | "
-        f"avg nodes/move={result.white_avg_nodes:.1f}"
+        f"avg nodes/move={result.white_avg_nodes:.1f} | "
+        f"avg prunes/move={result.white_avg_prunes:.1f}"
     )
