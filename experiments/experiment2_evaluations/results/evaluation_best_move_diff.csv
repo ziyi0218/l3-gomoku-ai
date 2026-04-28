@@ -1,0 +1,16 @@
+position,depth,EvalA_move,EvalB_move,EvalC_move,EvalA_score,EvalB_score,EvalC_score,all_same,moves_differ
+E1_length_pressure,1,7 9,7 9,7 9,10012.0,15086.0,54796.5,True,False
+E1_length_pressure,2,7 9,8 8,8 8,9911.0,265.0,3104.0,False,True
+E1_length_pressure,3,7 9,9 9,9 9,10206.0,15238.0,57326.0,False,True
+E2_open_vs_blocked,1,8 5,8 5,8 5,10097.0,80003.0,110999.0,True,False
+E2_open_vs_blocked,2,8 5,8 9,8 9,10004.0,14992.0,55587.0,False,True
+E2_open_vs_blocked,3,8 5,8 5,8 5,1000000.0,1000000.0,1000000.0,True,False
+E3_window_cross,1,5 9,5 9,5 9,10008.0,80076.0,108075.0,True,False
+E3_window_cross,2,5 9,5 9,9 5,9899.0,15066.0,53043.5,False,True
+E3_window_cross,3,5 9,5 9,5 9,1000000.0,1000000.0,1000000.0,True,False
+E4_attack_defense,1,6 10,6 6,6 6,9911.0,79832.0,102792.5,False,True
+E4_attack_defense,2,6 10,6 6,6 6,8.0,14822.0,32492.0,False,True
+E4_attack_defense,3,6 10,6 6,6 6,1000000.0,1000000.0,1000000.0,False,True
+E5_complex_midgame,1,8 9,8 9,8 9,9911.0,78641.0,94083.0,True,False
+E5_complex_midgame,2,8 9,8 9,8 9,0.0,0.0,-44299.5,True,False
+E5_complex_midgame,3,8 9,8 9,8 9,1000000.0,1000000.0,1000000.0,True,False

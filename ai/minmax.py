@@ -1,19 +1,31 @@
-from typing import Tuple, Optional, Callable
+import time
+from typing import Callable, Optional, Tuple
 
-from game.board import Board
-from game.rules import is_terminal, generate_candidate_moves
 from ai.evaluation import eval_basic
+from game.board import Board
+from game.rules import generate_candidate_moves, is_terminal
 
 Move = Tuple[int, int]
 EvalFn = Callable[[Board, int], float]
 
 
 class MinimaxStats:
-    """Minimax算法统计信息"""
+    """Minimax search statistics."""
 
     def __init__(self):
         self.nodes_evaluated = 0
         self.max_depth_reached = 0
+        self.cutoffs = 0
+        self.candidate_count = 0
+        self.time_ms = 0.0
+
+    @property
+    def nodes(self) -> int:
+        return self.nodes_evaluated
+
+    @property
+    def depth(self) -> int:
+        return self.max_depth_reached
 
 
 def choose_move_minimax(
@@ -21,13 +33,13 @@ def choose_move_minimax(
     player: int,
     depth: int,
     eval_fn: EvalFn = eval_basic,
-) -> Tuple[Optional[Move], MinimaxStats]:
-    """
-    对外接口：main.py 调用这个函数来选择一步棋。
-    """
+) -> Tuple[Optional[Move], float, MinimaxStats]:
+    """Choose one move with pure Minimax."""
     stats = MinimaxStats()
+    stats.candidate_count = len(generate_candidate_moves(board, radius=2))
 
-    _, best_move = minimax(
+    start = time.perf_counter()
+    score, best_move = minimax(
         board=board,
         depth=depth,
         current_player=player,
@@ -36,8 +48,9 @@ def choose_move_minimax(
         stats=stats,
         current_depth=0,
     )
+    stats.time_ms = (time.perf_counter() - start) * 1000
 
-    return best_move, stats
+    return best_move, score, stats
 
 
 def minimax(
@@ -50,12 +63,9 @@ def minimax(
     current_depth: int,
 ) -> Tuple[float, Optional[Move]]:
     """
-    纯 Minimax 算法。
+    Pure Minimax.
 
-    current_player: 当前轮到谁下
-    root_player: 最初调用搜索的 AI 玩家
-
-    evaluation 永远从 root_player 的角度打分。
+    Evaluation is always computed from root_player's point of view.
     """
     stats.nodes_evaluated += 1
     stats.max_depth_reached = max(stats.max_depth_reached, current_depth)
@@ -85,7 +95,6 @@ def minimax(
                     stats=stats,
                     current_depth=current_depth + 1,
                 )
-
                 board.undo()
 
                 if score > best_score:
@@ -94,26 +103,24 @@ def minimax(
 
         return best_score, best_move
 
-    else:
-        best_score = float("inf")
-        best_move = None
+    best_score = float("inf")
+    best_move = None
 
-        for r, c in moves:
-            if board.place(r, c, current_player):
-                score, _ = minimax(
-                    board=board,
-                    depth=depth - 1,
-                    current_player=-current_player,
-                    root_player=root_player,
-                    eval_fn=eval_fn,
-                    stats=stats,
-                    current_depth=current_depth + 1,
-                )
+    for r, c in moves:
+        if board.place(r, c, current_player):
+            score, _ = minimax(
+                board=board,
+                depth=depth - 1,
+                current_player=-current_player,
+                root_player=root_player,
+                eval_fn=eval_fn,
+                stats=stats,
+                current_depth=current_depth + 1,
+            )
+            board.undo()
 
-                board.undo()
+            if score < best_score:
+                best_score = score
+                best_move = (r, c)
 
-                if score < best_score:
-                    best_score = score
-                    best_move = (r, c)
-
-        return best_score, best_move
+    return best_score, best_move

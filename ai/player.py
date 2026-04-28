@@ -29,18 +29,19 @@ def ai_move_with_stats(
     start = time.perf_counter()
 
     if search_name == SEARCH_MINIMAX:
-        move, stats = choose_move_minimax(
+        move, _, stats = choose_move_minimax(
             board=board,
             player=player,
             depth=depth,
             eval_fn=eval_fn,
         )
     else:
-        move, stats = choose_move_alphabeta(
+        move, _, stats = choose_move_alphabeta(
             board=board,
             player=player,
             depth=depth,
             eval_fn=eval_fn,
+            use_ordering=True,
         )
 
     elapsed = time.perf_counter() - start

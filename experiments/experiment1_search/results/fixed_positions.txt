@@ -1,0 +1,144 @@
+================================================================================
+P1_opening
+================================================================================
+Description: Opening position with a small central cluster.
+Expected property: Low branching factor; all algorithms should agree quickly.
+Player to move: Black / X
+Stones: 4
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 36
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  O  .  .  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  O  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  X  .  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+P2_midgame
+================================================================================
+Description: Balanced midgame with both sides occupying the center area.
+Expected property: Moderate branching factor and no immediate forced win.
+Player to move: Black / X
+Stones: 8
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 44
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  O  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  X  X  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  X  .  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+P3_single_threat
+================================================================================
+Description: Black has a three-stone horizontal threat.
+Expected property: Search should prioritize extending or converting the threat.
+Player to move: Black / X
+Stones: 8
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 45
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  X  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 7   .  .  .  .  .  .  X  X  X  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+P4_mutual_threats
+================================================================================
+Description: Both players have visible threats near the center.
+Expected property: Good position for checking score equivalence under pressure.
+Player to move: Black / X
+Stones: 10
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 53
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  X  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  X  O  .  .  .  .  .  .  .
+ 7   .  .  .  .  .  X  X  O  X  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  O  .  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+P5_complex_midgame
+================================================================================
+Description: Denser midgame cluster with more candidate moves.
+Expected property: Useful for observing larger node reductions at depth 3.
+Player to move: Black / X
+Stones: 14
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 60
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  O  O  O  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  O  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  X  X  X  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  X  X  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  X  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .

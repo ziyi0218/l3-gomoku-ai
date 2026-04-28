@@ -1,0 +1,10 @@
+depth,algorithm,ordering,positions,avg_nodes,avg_time_ms,avg_cutoffs,node_reduction_vs_minimax,score_matches_minimax,move_matches_minimax
+1,Alpha-Beta,off,5,48.6,13.7762,0.0,0.0,5,5
+1,Alpha-Beta,on,5,48.6,24.6361,0.0,0.0,5,5
+1,Minimax,none,5,48.6,12.3447,0.0,0.0,5,5
+2,Alpha-Beta,off,5,573.6,214.8704,44.8,0.7897,5,5
+2,Alpha-Beta,on,5,151.6,887.8744,46.2,0.9444,5,4
+2,Minimax,none,5,2727.0,875.4747,0.0,0.0,5,5
+3,Alpha-Beta,off,5,11555.6,6029.3894,367.0,0.9335,5,5
+3,Alpha-Beta,on,5,1782.6,2795.7996,127.2,0.9897,5,4
+3,Minimax,none,5,173762.8,71749.5513,0.0,0.0,5,5

@@ -1,4 +1,5 @@
-from typing import Callable, Optional, Tuple
+import time
+from typing import Callable, List, Optional, Tuple
 
 from ai.evaluation import eval_basic
 from game.board import Board
@@ -15,6 +16,20 @@ class AlphaBetaStats:
         self.nodes_evaluated = 0
         self.pruning_count = 0
         self.max_depth_reached = 0
+        self.candidate_count = 0
+        self.time_ms = 0.0
+
+    @property
+    def nodes(self) -> int:
+        return self.nodes_evaluated
+
+    @property
+    def cutoffs(self) -> int:
+        return self.pruning_count
+
+    @property
+    def depth(self) -> int:
+        return self.max_depth_reached
 
 
 def choose_move_alphabeta(
@@ -22,11 +37,14 @@ def choose_move_alphabeta(
     player: int,
     depth: int,
     eval_fn: EvalFn = eval_basic,
-) -> Tuple[Optional[Move], AlphaBetaStats]:
-    """Public interface for choosing one move with Alpha-Beta pruning."""
+    use_ordering: bool = False,
+) -> Tuple[Optional[Move], float, AlphaBetaStats]:
+    """Choose one move with Alpha-Beta pruning."""
     stats = AlphaBetaStats()
+    stats.candidate_count = len(generate_candidate_moves(board, radius=2))
 
-    _, best_move = alphabeta(
+    start = time.perf_counter()
+    score, best_move = alphabeta(
         board=board,
         depth=depth,
         alpha=float("-inf"),
@@ -36,9 +54,42 @@ def choose_move_alphabeta(
         eval_fn=eval_fn,
         stats=stats,
         current_depth=0,
+        use_ordering=use_ordering,
     )
+    stats.time_ms = (time.perf_counter() - start) * 1000
 
-    return best_move, stats
+    return best_move, score, stats
+
+
+def ordered_moves(
+    board: Board,
+    moves: List[Move],
+    current_player: int,
+    root_player: int,
+    eval_fn: EvalFn,
+) -> List[Move]:
+    """
+    Order candidates with a shallow static evaluation.
+
+    The candidate set is unchanged; only traversal order changes. Maximizing
+    layers inspect high-scoring moves first, minimizing layers low-scoring moves
+    first, which generally helps Alpha-Beta prune earlier.
+    """
+    maximizing = current_player == root_player
+    scored_moves = []
+
+    for index, (r, c) in enumerate(moves):
+        if board.place(r, c, current_player):
+            score = eval_fn(board, root_player)
+            board.undo()
+            scored_moves.append((score, index, (r, c)))
+
+    if maximizing:
+        scored_moves.sort(key=lambda item: (-item[0], item[1]))
+    else:
+        scored_moves.sort(key=lambda item: (item[0], item[1]))
+
+    return [move for _, _, move in scored_moves]
 
 
 def alphabeta(
@@ -51,12 +102,12 @@ def alphabeta(
     eval_fn: EvalFn,
     stats: AlphaBetaStats,
     current_depth: int,
+    use_ordering: bool,
 ) -> Tuple[float, Optional[Move]]:
     """
     Alpha-Beta pruning version of Minimax.
 
-    It uses the same scoring perspective as Minimax: evaluation is always
-    computed from root_player's point of view.
+    Evaluation is always computed from root_player's point of view.
     """
     stats.nodes_evaluated += 1
     stats.max_depth_reached = max(stats.max_depth_reached, current_depth)
@@ -68,6 +119,9 @@ def alphabeta(
 
     if not moves:
         return eval_fn(board, root_player), None
+
+    if use_ordering:
+        moves = ordered_moves(board, moves, current_player, root_player, eval_fn)
 
     maximizing = current_player == root_player
 
@@ -87,6 +141,7 @@ def alphabeta(
                     eval_fn=eval_fn,
                     stats=stats,
                     current_depth=current_depth + 1,
+                    use_ordering=use_ordering,
                 )
                 board.undo()
 
@@ -116,6 +171,7 @@ def alphabeta(
                 eval_fn=eval_fn,
                 stats=stats,
                 current_depth=current_depth + 1,
+                use_ordering=use_ordering,
             )
             board.undo()
 

@@ -1,0 +1,144 @@
+================================================================================
+E1_length_pressure
+================================================================================
+Description: Black has a longer one-sided segment and a shorter central shape with more open development space.
+Purpose: Eval A may prefer extending the longer local chain, while Eval B/C can value openness or future windows.
+Player to move: Black / X
+Stones: 9
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 53
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 7   .  .  .  .  .  O  X  X  X  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  O  .  O  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  X  X  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+E2_open_vs_blocked
+================================================================================
+Description: A blocked longer line competes with an open three shape in the same central area.
+Purpose: Show whether open-end evaluation avoids overvaluing blocked length.
+Player to move: Black / X
+Stones: 10
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 54
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  O  X  X  X  O  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  X  X  X  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+E3_window_cross
+================================================================================
+Description: One central intersection contributes to several potential five-cell windows, while another move extends a visible local shape.
+Purpose: Check whether Eval C favors multi-window potential over local length.
+Player to move: Black / X
+Stones: 10
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 58
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  O  .  X  .  O  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  .  X  .  .  .  .  .
+ 8   .  .  .  .  .  .  X  X  O  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  O  .  O  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+E4_attack_defense
+================================================================================
+Description: White has a growing diagonal threat, while Black has a horizontal attacking option.
+Purpose: Observe whether evaluations prefer attacking or reducing opponent potential.
+Player to move: Black / X
+Stones: 10
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 51
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  X  X  X  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  O  .  X  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  X  .  O  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+================================================================================
+E5_complex_midgame
+================================================================================
+Description: Both players have several two- and three-stone patterns in a compact midgame cluster.
+Purpose: Compare evaluation choices, cost, and pruning in a denser but still bounded candidate space.
+Player to move: Black / X
+Stones: 12
+Candidate rule: generate_candidate_moves(radius=2)
+Candidate count: 52
+Terminal: False
+Winner: None
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  O  O  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  O  O  O  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  O  .  .  .  .  .  .
+ 8   .  .  .  .  .  .  X  X  X  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  X  X  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
