@@ -19,7 +19,7 @@ from experiments.experiment3_candidate_tournament.profiles import (
 from game.board import Board
 from game.rules import get_winner, is_terminal
 
-RESULT_DIR = Path("experiments/experiment3_candidate_tournament/results")
+RESULT_DIR = Path("experiments/experiment3_candidate_tournament/results2")
 MATCH_RESULTS_CSV = RESULT_DIR / "candidate_match_results.csv"
 RANKING_CSV = RESULT_DIR / "candidate_ai_ranking.csv"
 PAIRWISE_CSV = RESULT_DIR / "candidate_pairwise_summary.csv"
@@ -414,9 +414,9 @@ def parse_args() -> argparse.Namespace:
         description="Experiment 3: small candidate AI configuration tournament."
     )
     parser.add_argument("--games-per-pair", type=int, default=10)
-    parser.add_argument("--max-moves", type=int, default=80)
+    parser.add_argument("--max-moves", type=int, default=50)
     parser.add_argument("--output-dir", type=Path, default=RESULT_DIR)
-    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--workers", type=int, default=4)
     return parser.parse_args()
 
 

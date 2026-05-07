@@ -133,19 +133,29 @@ def score_segments_basic(segments: List[int]) -> float:
 def eval_basic(board: Board, player: int) -> float:
     """
     Eval A:
-    Consecutive segment length only.
+    Basic defensive evaluation.
 
     Focus:
-        当前已有几连
+        优先防守对手的活二、活三、活四
     """
     terminal = terminal_score(board, player)
     if terminal is not None:
         return terminal
 
-    my_score = score_segments_basic(collect_segments(board, player))
-    opp_score = score_segments_basic(collect_segments(board, opponent(player)))
+    my_segments = collect_segments(board, player)
+    opp_segments = collect_segments(board, opponent(player))
+    my_open_segments = collect_open_segments(board, player)
+    opp_open_segments = collect_open_segments(board, opponent(player))
 
-    return my_score - opp_score
+    my_score = score_segments_basic(my_segments)
+    opp_score = score_segments_basic(opp_segments)
+
+    return (
+        my_score
+        + score_open_segments_defensive(my_open_segments, is_opponent=False)
+        - opp_score
+        - score_open_segments_defensive(opp_open_segments, is_opponent=True)
+    )
 
 
 # ============================================================
@@ -199,6 +209,43 @@ def collect_open_segments(board: Board, player: int) -> List[Tuple[int, int]]:
             segments.append((length, open_ends))
 
     return segments
+
+
+def score_open_segments_defensive(
+    segments: List[Tuple[int, int]],
+    is_opponent: bool,
+) -> float:
+    """
+    Coarse open-segment scoring for Eval A.
+
+    Eval A stays simpler than Eval B, but reacts much more strongly to the
+    opponent's open threats so its behavior is more conservative.
+    """
+    score = 0.0
+
+    for length, open_ends in segments:
+        if length >= 5:
+            score += WIN_SCORE
+
+        elif length == 4:
+            if open_ends == 2:
+                score += 60_000 if is_opponent else 12_000
+            elif open_ends == 1:
+                score += 18_000 if is_opponent else 4_000
+
+        elif length == 3:
+            if open_ends == 2:
+                score += 3_500 if is_opponent else 350
+            elif open_ends == 1:
+                score += 700 if is_opponent else 90
+
+        elif length == 2:
+            if open_ends == 2:
+                score += 160 if is_opponent else 40
+            elif open_ends == 1:
+                score += 40 if is_opponent else 10
+
+    return score
 
 
 def score_open_segments(segments: List[Tuple[int, int]]) -> float:

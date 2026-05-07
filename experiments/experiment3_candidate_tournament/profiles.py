@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ai.evaluation import eval_advanced, eval_basic, eval_intermediate
+from ai.evaluation import eval_basic, eval_intermediate
 from models import EvalFn
 
 
@@ -18,7 +18,6 @@ CANDIDATE_AI_PROFILES = [
     AIProfile("B1", "Eval B", eval_intermediate, 1),
     AIProfile("A2", "Eval A", eval_basic, 2),
     AIProfile("B2", "Eval B", eval_intermediate, 2),
-    AIProfile("C2", "Eval C", eval_advanced, 2),
     AIProfile("A3", "Eval A", eval_basic, 3),
     AIProfile("B3", "Eval B", eval_intermediate, 3),
 ]
