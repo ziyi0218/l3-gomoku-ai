@@ -12,6 +12,10 @@ if __package__ is None or __package__ == "":
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ai.alphabeta import choose_move_alphabeta
+from experiments.experiment4_difficulty_tournament.openings import (
+    OPENING_POSITIONS,
+    OpeningPosition,
+)
 from experiments.experiment4_difficulty_tournament.profiles import (
     AIProfile,
     DIFFICULTY_AI_PROFILES,
@@ -19,7 +23,7 @@ from experiments.experiment4_difficulty_tournament.profiles import (
 from game.board import Board
 from game.rules import get_winner, is_terminal
 
-RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/results")
+RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result5")
 MATCH_RESULTS_CSV = RESULT_DIR / "difficulty_match_results.csv"
 RANKING_CSV = RESULT_DIR / "difficulty_ai_ranking.csv"
 PAIRWISE_CSV = RESULT_DIR / "difficulty_pairwise_summary.csv"
@@ -30,6 +34,7 @@ RANKING_MD = RESULT_DIR / "difficulty_ai_ranking.md"
 class GameResult:
     game_id: int
     pair_id: str
+    opening_name: str
     black_ai: str
     white_ai: str
     winner: str
@@ -64,9 +69,13 @@ def play_ai_vs_ai(
     game_id: int,
     pair_id: str,
     max_moves: int,
+    opening: OpeningPosition,
 ) -> GameResult:
-    board = Board(15)
-    current = 1
+    board = opening.make_board()
+    current = opening.player_to_move
+
+    if current not in (1, -1):
+        raise ValueError(f"Invalid player_to_move for opening {opening.name}: {current}")
 
     black_total_time = 0.0
     white_total_time = 0.0
@@ -126,6 +135,7 @@ def play_ai_vs_ai(
     return GameResult(
         game_id=game_id,
         pair_id=pair_id,
+        opening_name=opening.name,
         black_ai=black_ai.name,
         white_ai=white_ai.name,
         winner=winner,
@@ -157,20 +167,22 @@ def build_game_jobs(games_per_pair: int, max_moves: int):
         pair_id = f"{ai_1.name}_vs_{ai_2.name}"
         games_each_side = games_per_pair // 2
 
-        for _ in range(games_each_side):
-            jobs.append((ai_1, ai_2, game_id, pair_id, max_moves))
+        for index in range(games_each_side):
+            opening = OPENING_POSITIONS[index % len(OPENING_POSITIONS)]
+            jobs.append((ai_1, ai_2, game_id, pair_id, max_moves, opening))
             game_id += 1
 
-        for _ in range(games_each_side):
-            jobs.append((ai_2, ai_1, game_id, pair_id, max_moves))
+        for index in range(games_each_side):
+            opening = OPENING_POSITIONS[index % len(OPENING_POSITIONS)]
+            jobs.append((ai_2, ai_1, game_id, pair_id, max_moves, opening))
             game_id += 1
 
     return jobs
 
 
 def run_game_job(job) -> GameResult:
-    black_ai, white_ai, game_id, pair_id, max_moves = job
-    return play_ai_vs_ai(black_ai, white_ai, game_id, pair_id, max_moves)
+    black_ai, white_ai, game_id, pair_id, max_moves, opening = job
+    return play_ai_vs_ai(black_ai, white_ai, game_id, pair_id, max_moves, opening)
 
 
 def run_round_robin(games_per_pair: int, max_moves: int) -> List[GameResult]:
@@ -179,8 +191,11 @@ def run_round_robin(games_per_pair: int, max_moves: int) -> List[GameResult]:
     total_games = len(jobs)
 
     for job in jobs:
-        black_ai, white_ai, game_id, _, _ = job
-        print(f"Game {game_id}/{total_games}: {black_ai.name} black vs {white_ai.name} white")
+        black_ai, white_ai, game_id, _, _, opening = job
+        print(
+            f"Game {game_id}/{total_games}: {black_ai.name} black vs {white_ai.name} white"
+            f" on {opening.name}"
+        )
         results.append(run_game_job(job))
 
     return results
@@ -409,7 +424,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Experiment 4: final Easy/Medium/Hard AI tournament."
     )
-    parser.add_argument("--games-per-pair", type=int, default=50)
+    parser.add_argument("--games-per-pair", type=int, default=200)
     parser.add_argument("--max-moves", type=int, default=50)
     parser.add_argument("--output-dir", type=Path, default=RESULT_DIR)
     parser.add_argument("--workers", type=int, default=4)

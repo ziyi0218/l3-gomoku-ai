@@ -1,0 +1,4 @@
+ai,profile,evaluation,depth,games,wins,losses,draws,win_rate,score_rate,non_draw_win_rate,avg_time_per_move_ms,avg_nodes_per_move,games_as_black,wins_as_black,black_win_rate,games_as_white,wins_as_white,white_win_rate,avg_game_length
+Medium,B2,Eval B,2,600,450,150,0,0.75,0.75,0.75,753.5836,231.91,300,300,1.0,300,150,0.5,28.75
+Hard,B3,Eval B,3,600,300,300,0,0.5,0.5,0.5,2195.9983,4067.82,300,150,0.5,300,150,0.5,22.5
+Easy,A1,Eval A,1,600,150,450,0,0.25,0.25,0.25,18.5198,60.98,300,0,0.0,300,150,0.5,24.25
