@@ -1,10 +1,14 @@
 from typing import List, Optional, Tuple
 
 from ai.evaluation import eval_advanced, eval_basic, eval_intermediate
+from ai.player import SEARCH_ALPHABETA
 from models import EvalFn
 
-SEARCH_MINIMAX = "Minimax"
-SEARCH_ALPHABETA = "Alpha-Beta"
+AI_DIFFICULTIES = {
+    1: ("Easy", 1, eval_basic, "Eval A", SEARCH_ALPHABETA),
+    2: ("Medium", 3, eval_basic, "Eval A", SEARCH_ALPHABETA),
+    3: ("Hard", 2, eval_intermediate, "Eval B", SEARCH_ALPHABETA),
+}
 
 
 def parse_move(s: str) -> Optional[Tuple[int, int] | tuple[str, str]]:
@@ -110,6 +114,17 @@ def ask_evaluation() -> Tuple[EvalFn, str]:
     if choice == 2:
         return eval_intermediate, "Eval B"
     return eval_advanced, "Eval C"
+
+
+def ask_ai_difficulty() -> Tuple[str, int, EvalFn, str, str]:
+    """Ask user to choose one fixed AI difficulty profile."""
+    print("\nChoose AI difficulty:")
+    print("1. Easy   - A1 (Eval A, depth 1)")
+    print("2. Medium - A3 (Eval A, depth 3)")
+    print("3. Hard   - B2 (Eval B, depth 2)")
+
+    choice = ask_int("Your choice: ", [1, 2, 3])
+    return AI_DIFFICULTIES[choice]
 
 
 def ask_search_algorithm() -> str:

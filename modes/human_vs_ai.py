@@ -1,5 +1,5 @@
 from ai.player import ai_move
-from cli.input import ask_depth, ask_evaluation, ask_search_algorithm, parse_move
+from cli.input import ask_ai_difficulty, parse_move
 from cli.output import print_final_result
 from game.board import Board
 from game.rules import is_terminal
@@ -15,15 +15,10 @@ def play_human_vs_ai() -> None:
 
     current = HUMAN
 
-    depth = ask_depth()
-
-    print("\nChoose search algorithm for AI:")
-    search_name = ask_search_algorithm()
-
-    print("\nChoose evaluation for AI:")
-    eval_fn, eval_name = ask_evaluation()
+    difficulty_name, depth, eval_fn, eval_name, search_name = ask_ai_difficulty()
 
     print("\nHuman vs AI started.")
+    print(f"AI difficulty = {difficulty_name}")
     print(f"AI search = {search_name}")
     print(f"AI depth = {depth}")
     print(f"AI evaluation = {eval_name}")
