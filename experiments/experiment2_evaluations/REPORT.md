@@ -126,15 +126,15 @@ interface and use the same candidate move generator.
 
 |Depth|Evaluation|Positions|Avg time ms|Avg nodes|Avg cutoffs|Avg candidate count|
 |---|---|---|---|---|---|---|
-|1|Eval A|6|35.2078|58.0|0.0|57.0|
-|1|Eval B|6|24.8029|58.0|0.0|57.0|
-|1|Eval C|6|245.8648|58.0|0.0|57.0|
-|2|Eval A|6|1353.6469|190.5|55.67|57.0|
-|2|Eval B|6|943.3087|211.33|55.33|57.0|
-|2|Eval C|6|8657.382|209.5|55.33|57.0|
-|3|Eval A|6|6419.806|4196.17|145.5|57.0|
-|3|Eval B|6|4527.5326|4154.17|150.5|57.0|
-|3|Eval C|6|37228.8886|4151.83|136.67|57.0|
+|1|Eval A|6|37.7455|58.0|0.0|57.0|
+|1|Eval B|6|27.2856|58.0|0.0|57.0|
+|1|Eval C|6|245.874|58.0|0.0|57.0|
+|2|Eval A|6|1316.8133|190.5|55.67|57.0|
+|2|Eval B|6|903.7211|224.0|55.17|57.0|
+|2|Eval C|6|8244.916|209.5|55.33|57.0|
+|3|Eval A|6|6152.1513|4196.17|145.5|57.0|
+|3|Eval B|6|4549.0734|4120.17|151.0|57.0|
+|3|Eval C|6|35588.1905|4151.83|136.67|57.0|
 
 ## 7. Runtime Comparison
 
@@ -147,15 +147,15 @@ more board-wide potential information.
 At depth 3:
 
 ```text
-Eval A average time:  6419.8060 ms
-Eval B average time:  4527.5326 ms
-Eval C average time: 37228.8886 ms
+Eval A average time:  6152.1513 ms
+Eval B average time:  4549.0734 ms
+Eval C average time: 35588.1905 ms
 ```
 
-Eval C is about `8.22x` slower than Eval B at depth 3:
+Eval C is about `7.82x` slower than Eval B at depth 3:
 
 ```text
-37228.8886 / 4527.5326 ~= 8.22
+35588.1905 / 4549.0734 ~= 7.82
 ```
 
 The updated Eval A is also slower than Eval B in this rerun. This is not a
@@ -204,7 +204,7 @@ At depth 3:
 
 ```text
 Eval A average nodes: 4196.17
-Eval B average nodes: 4154.17
+Eval B average nodes: 4120.17
 Eval C average nodes: 4151.83
 ```
 
@@ -226,7 +226,7 @@ At depth 3:
 
 ```text
 Eval A average cutoffs: 145.50
-Eval B average cutoffs: 150.50
+Eval B average cutoffs: 151.00
 Eval C average cutoffs: 136.67
 ```
 
@@ -256,13 +256,13 @@ Representative cases:
 
 |Position|Depth|Eval A move|Eval B move|Eval C move|Interpretation|
 |---|---|---|---|---|---|
-|E1_length_pressure|2|`7 9`|`8 8`|`8 8`|Eval A keeps the local extension, while Eval B/C prefer another shape.|
+|E1_length_pressure|2|`7 9`|`9 9`|`8 8`|All three evaluations choose different continuations after the Eval B update.|
 |E1_length_pressure|3|`9 6`|`9 9`|`9 9`|Deeper search still separates Eval A from Eval B/C.|
 |E3_window_potential|2|`5 9`|`5 9`|`9 5`|Eval C selects a different potential-window move.|
 |E5_center_space|1|`4 6`|`4 6`|`6 6`|Eval C favors central / spatial potential earlier.|
-|E5_center_space|2|`4 6`|`6 6`|`6 6`|Eval B/C agree on the development move while Eval A extends locally.|
+|E5_center_space|2|`4 6`|`9 9`|`6 6`|All three evaluations disagree in the center-space trade-off.|
 |E5_center_space|3|`6 6`|`9 9`|`4 6`|All three evaluations disagree in the center-space position.|
-|E6_complex_midgame|2|`6 6`|`8 9`|`8 9`|Eval B/C agree in the compact midgame while Eval A differs.|
+|E6_complex_midgame|2|`6 6`|`6 6`|`8 9`|Eval C differs from Eval A/B in the compact midgame.|
 
 Several depth-3 rows return `1000000.0` scores because the search finds a
 terminal winning line under that evaluation horizon. In those cases, identical
@@ -283,7 +283,7 @@ it directly uses one open-segment scan per side.
 
 Third, Eval C produces some different decisions, especially in positions
 designed around center space and five-cell window potential. However, it is much
-more expensive. At depth 3, Eval C is over eight times slower than Eval B while
+more expensive. At depth 3, Eval C is nearly eight times slower than Eval B while
 exploring nearly the same number of nodes.
 
 Fourth, more complex evaluation does not automatically mean better practical AI
