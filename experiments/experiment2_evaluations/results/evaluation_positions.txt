@@ -1,14 +1,13 @@
-================================================================================
+Experiment 2 Fixed Evaluation Positions
+X = black/current player in these positions, O = white, . = empty
+
+========================================================================
 E1_length_pressure
-================================================================================
-Description: Black has a longer one-sided segment and a shorter central shape with more open development space.
-Purpose: Eval A may prefer extending the longer local chain, while Eval B/C can value openness or future windows.
-Player to move: Black / X
-Stones: 9
-Candidate rule: generate_candidate_moves(radius=2)
-Candidate count: 53
-Terminal: False
-Winner: None
+player_to_move: 1
+description: Black has a longer local chain that can be extended, while another central shape has more open development space.
+purpose: Test whether updated Eval A still favors immediate local extension, while Eval B/C may value openness or window potential.
+moves:
+(7,5,-1), (7,6,1), (7,7,1), (7,8,1), (8,7,-1), (9,7,1), (9,8,1), (6,8,-1), (8,9,-1)
 
      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
  0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -27,17 +26,13 @@ Winner: None
 13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 
-================================================================================
+========================================================================
 E2_open_vs_blocked
-================================================================================
-Description: A blocked longer line competes with an open three shape in the same central area.
-Purpose: Show whether open-end evaluation avoids overvaluing blocked length.
-Player to move: Black / X
-Stones: 10
-Candidate rule: generate_candidate_moves(radius=2)
-Candidate count: 54
-Terminal: False
-Winner: None
+player_to_move: 1
+description: A blocked longer line appears near an open central shape.
+purpose: Highlight the difference between length-based scoring and open-end shape scoring.
+moves:
+(6,5,-1), (6,6,1), (6,7,1), (6,8,1), (6,9,-1), (8,6,1), (8,7,1), (8,8,1), (7,8,-1), (9,8,-1)
 
      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
  0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -56,17 +51,13 @@ Winner: None
 13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 
-================================================================================
-E3_window_cross
-================================================================================
-Description: One central intersection contributes to several potential five-cell windows, while another move extends a visible local shape.
-Purpose: Check whether Eval C favors multi-window potential over local length.
-Player to move: Black / X
-Stones: 10
-Candidate rule: generate_candidate_moves(radius=2)
-Candidate count: 58
-Terminal: False
-Winner: None
+========================================================================
+E3_window_potential
+player_to_move: 1
+description: One central point participates in several possible five-cell windows, while another point extends a visible local pattern.
+purpose: Give Eval C a chance to prefer multi-window potential over local segment length.
+moves:
+(7,7,1), (7,9,1), (6,8,1), (8,8,-1), (9,7,-1), (8,6,1), (8,7,1), (6,6,-1), (6,10,-1), (9,9,-1)
 
      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
  0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -85,17 +76,13 @@ Winner: None
 13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 
-================================================================================
+========================================================================
 E4_attack_defense
-================================================================================
-Description: White has a growing diagonal threat, while Black has a horizontal attacking option.
-Purpose: Observe whether evaluations prefer attacking or reducing opponent potential.
-Player to move: Black / X
-Stones: 10
-Candidate rule: generate_candidate_moves(radius=2)
-Candidate count: 51
-Terminal: False
-Winner: None
+player_to_move: 1
+description: White has a developing diagonal threat while Black has a tempting horizontal attacking option.
+purpose: Observe whether evaluations attack, defend, or reduce opponent window potential.
+moves:
+(7,7,-1), (8,8,-1), (9,9,-1), (6,7,1), (6,8,1), (6,9,1), (7,9,1), (8,7,-1), (9,7,1), (5,8,-1)
 
      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
  0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -114,17 +101,38 @@ Winner: None
 13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 
-================================================================================
-E5_complex_midgame
-================================================================================
-Description: Both players have several two- and three-stone patterns in a compact midgame cluster.
-Purpose: Compare evaluation choices, cost, and pruning in a denser but still bounded candidate space.
-Player to move: Black / X
-Stones: 12
-Candidate rule: generate_candidate_moves(radius=2)
-Candidate count: 52
-Terminal: False
-Winner: None
+========================================================================
+E5_center_space
+player_to_move: 1
+description: A local edge-side chain competes with central development points that can expand in multiple directions.
+purpose: Check whether Eval C's window/space view prefers central development over local extension.
+moves:
+(4,3,1), (4,4,1), (4,5,1), (4,2,-1), (7,7,1), (7,9,-1), (8,8,1), (6,8,-1), (9,7,-1)
+
+     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+ 0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 1   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 2   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 3   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 4   .  .  O  X  X  X  .  .  .  .  .  .  .  .  .
+ 5   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ 6   .  .  .  .  .  .  .  .  O  .  .  .  .  .  .
+ 7   .  .  .  .  .  .  .  X  .  O  .  .  .  .  .
+ 8   .  .  .  .  .  .  .  .  X  .  .  .  .  .  .
+ 9   .  .  .  .  .  .  .  O  .  .  .  .  .  .  .
+10   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+11   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+12   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+13   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+14   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+========================================================================
+E6_complex_midgame
+player_to_move: 1
+description: Both players have several two- and three-stone patterns in a compact midgame cluster.
+purpose: Compare behavior, cost, nodes, and cutoffs in a moderate midgame.
+moves:
+(7,7,1), (7,8,-1), (8,7,1), (6,7,-1), (8,8,1), (6,8,-1), (9,7,1), (5,8,-1), (8,6,1), (6,9,-1), (9,8,1), (5,7,-1)
 
      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
  0   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .

@@ -26,12 +26,12 @@ EVALUATION_POSITIONS = [
     EvaluationPosition(
         name="E1_length_pressure",
         description=(
-            "Black has a longer one-sided segment and a shorter central shape with "
-            "more open development space."
+            "Black has a longer local chain that can be extended, while another "
+            "central shape has more open development space."
         ),
         purpose=(
-            "Eval A may prefer extending the longer local chain, while Eval B/C can "
-            "value openness or future windows."
+            "Test whether updated Eval A still favors immediate local extension, "
+            "while Eval B/C may value openness or window potential."
         ),
         player_to_move=1,
         moves=[
@@ -49,11 +49,11 @@ EVALUATION_POSITIONS = [
     EvaluationPosition(
         name="E2_open_vs_blocked",
         description=(
-            "A blocked longer line competes with an open three shape in the same "
-            "central area."
+            "A blocked longer line appears near an open central shape."
         ),
         purpose=(
-            "Show whether open-end evaluation avoids overvaluing blocked length."
+            "Highlight the difference between length-based scoring and open-end "
+            "shape scoring."
         ),
         player_to_move=1,
         moves=[
@@ -70,13 +70,14 @@ EVALUATION_POSITIONS = [
         ],
     ),
     EvaluationPosition(
-        name="E3_window_cross",
+        name="E3_window_potential",
         description=(
-            "One central intersection contributes to several potential five-cell "
-            "windows, while another move extends a visible local shape."
+            "One central point participates in several possible five-cell windows, "
+            "while another point extends a visible local pattern."
         ),
         purpose=(
-            "Check whether Eval C favors multi-window potential over local length."
+            "Give Eval C a chance to prefer multi-window potential over local "
+            "segment length."
         ),
         player_to_move=1,
         moves=[
@@ -95,11 +96,11 @@ EVALUATION_POSITIONS = [
     EvaluationPosition(
         name="E4_attack_defense",
         description=(
-            "White has a growing diagonal threat, while Black has a horizontal "
-            "attacking option."
+            "White has a developing diagonal threat while Black has a tempting "
+            "horizontal attacking option."
         ),
         purpose=(
-            "Observe whether evaluations prefer attacking or reducing opponent "
+            "Observe whether evaluations attack, defend, or reduce opponent window "
             "potential."
         ),
         player_to_move=1,
@@ -117,14 +118,36 @@ EVALUATION_POSITIONS = [
         ],
     ),
     EvaluationPosition(
-        name="E5_complex_midgame",
+        name="E5_center_space",
+        description=(
+            "A local edge-side chain competes with central development points that "
+            "can expand in multiple directions."
+        ),
+        purpose=(
+            "Check whether Eval C's window/space view prefers central development "
+            "over local extension."
+        ),
+        player_to_move=1,
+        moves=[
+            (4, 3, 1),
+            (4, 4, 1),
+            (4, 5, 1),
+            (4, 2, -1),
+            (7, 7, 1),
+            (7, 9, -1),
+            (8, 8, 1),
+            (6, 8, -1),
+            (9, 7, -1),
+        ],
+    ),
+    EvaluationPosition(
+        name="E6_complex_midgame",
         description=(
             "Both players have several two- and three-stone patterns in a compact "
             "midgame cluster."
         ),
         purpose=(
-            "Compare evaluation choices, cost, and pruning in a denser but still "
-            "bounded candidate space."
+            "Compare behavior, cost, nodes, and cutoffs in a moderate midgame."
         ),
         player_to_move=1,
         moves=[

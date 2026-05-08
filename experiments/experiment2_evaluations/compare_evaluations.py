@@ -9,7 +9,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 if __package__ is None or __package__ == "":
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from ai.alphabeta import ordered_moves, choose_move_alphabeta
+from ai.alphabeta import choose_move_alphabeta, ordered_moves
 from ai.evaluation import eval_advanced, eval_basic, eval_intermediate
 from experiments.experiment2_evaluations.positions import (
     EVALUATION_POSITIONS,
@@ -22,7 +22,8 @@ Move = Tuple[int, int]
 
 RESULT_DIR = Path("experiments/experiment2_evaluations/results")
 DETAIL_CSV = RESULT_DIR / "evaluation_comparison.csv"
-SUMMARY_CSV = RESULT_DIR / "evaluation_comparison_summary.csv"
+SUMMARY_CSV = RESULT_DIR / "evaluation_summary.csv"
+SUMMARY_COMPAT_CSV = RESULT_DIR / "evaluation_comparison_summary.csv"
 SUMMARY_MD = RESULT_DIR / "evaluation_comparison_summary.md"
 MOVE_DIFF_CSV = RESULT_DIR / "evaluation_best_move_diff.csv"
 
@@ -35,21 +36,9 @@ class EvaluationCase:
 
 
 EVALUATIONS = [
-    EvaluationCase(
-        "Eval A",
-        eval_basic,
-        "Consecutive segment length only.",
-    ),
-    EvaluationCase(
-        "Eval B",
-        eval_intermediate,
-        "Segment length plus open/blocked ends.",
-    ),
-    EvaluationCase(
-        "Eval C",
-        eval_advanced,
-        "Five-cell window potential plus center bonus.",
-    ),
+    EvaluationCase("Eval A", eval_basic, "Updated consecutive length / defensive basic evaluation."),
+    EvaluationCase("Eval B", eval_intermediate, "Open and blocked segment shape evaluation."),
+    EvaluationCase("Eval C", eval_advanced, "Five-cell window potential evaluation."),
 ]
 
 
@@ -66,19 +55,17 @@ def format_move(move: Optional[Move]) -> str:
 def run_search(position: EvaluationPosition, depth: int, case: EvaluationCase):
     board = position.make_board()
     before = board_signature(board)
+
     base_moves = generate_candidate_moves(board, radius=2)
-    ordered = ordered_moves(
+    reordered = ordered_moves(
         board=board,
         moves=base_moves,
         current_player=position.player_to_move,
         root_player=position.player_to_move,
         eval_fn=case.function,
     )
-
-    if set(base_moves) != set(ordered):
-        raise RuntimeError(
-            f"Move ordering changed candidate set for {position.name}, {case.name}"
-        )
+    if set(base_moves) != set(reordered):
+        raise RuntimeError(f"Move ordering changed candidate set for {position.name}")
 
     move, score, stats = choose_move_alphabeta(
         board=board,
@@ -89,17 +76,15 @@ def run_search(position: EvaluationPosition, depth: int, case: EvaluationCase):
     )
 
     after = board_signature(board)
-    if before != after:
-        raise RuntimeError(
-            f"Board state was modified by search: {position.name}, depth {depth}, {case.name}"
-        )
+    board_unchanged = before == after
+    move_is_legal = move in base_moves if move is not None else False
 
-    if move is not None and move not in base_moves:
-        raise RuntimeError(
-            f"Illegal best move for {position.name}, depth {depth}, {case.name}: {move}"
-        )
+    if not board_unchanged:
+        raise RuntimeError(f"Board state polluted by search for {position.name}")
+    if not move_is_legal:
+        raise RuntimeError(f"Illegal move returned for {position.name}: {move}")
 
-    return move, score, stats, len(base_moves)
+    return move, score, stats, len(base_moves), move_is_legal, board_unchanged
 
 
 def build_detail_rows(
@@ -115,8 +100,9 @@ def build_detail_rows(
 
         for depth in depths:
             for case in EVALUATIONS:
-                move, score, stats, candidate_count = run_search(position, depth, case)
-
+                move, score, stats, candidate_count, move_is_legal, board_unchanged = run_search(
+                    position, depth, case
+                )
                 rows.append(
                     {
                         "position": position.name,
@@ -136,6 +122,8 @@ def build_detail_rows(
                         "cutoffs": stats.cutoffs,
                         "time_ms": round(stats.time_ms, 4),
                         "candidate_count": candidate_count,
+                        "move_is_legal": move_is_legal,
+                        "board_unchanged_after_search": board_unchanged,
                     }
                 )
 
@@ -160,8 +148,7 @@ def average(rows: List[Dict[str, object]], field: str) -> float:
 def build_summary_rows(detail_rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
     grouped = defaultdict(list)
     for row in detail_rows:
-        key = (int(row["depth"]), str(row["evaluation"]))
-        grouped[key].append(row)
+        grouped[(int(row["depth"]), str(row["evaluation"]))].append(row)
 
     rows = []
     for depth, evaluation in sorted(grouped):
@@ -183,25 +170,22 @@ def build_summary_rows(detail_rows: List[Dict[str, object]]) -> List[Dict[str, o
 def build_move_diff_rows(detail_rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
     grouped = defaultdict(dict)
     for row in detail_rows:
-        key = (str(row["position"]), int(row["depth"]))
-        grouped[key][str(row["evaluation"])] = row
+        grouped[(str(row["position"]), int(row["depth"]))][str(row["evaluation"])] = row
 
     rows = []
     for position, depth in sorted(grouped):
         items = grouped[(position, depth)]
-        moves = {
-            "Eval A": items["Eval A"]["best_move"],
-            "Eval B": items["Eval B"]["best_move"],
-            "Eval C": items["Eval C"]["best_move"],
-        }
-        unique_moves = set(moves.values())
+        move_a = items["Eval A"]["best_move"]
+        move_b = items["Eval B"]["best_move"]
+        move_c = items["Eval C"]["best_move"]
+        unique_moves = {move_a, move_b, move_c}
         rows.append(
             {
                 "position": position,
                 "depth": depth,
-                "EvalA_move": moves["Eval A"],
-                "EvalB_move": moves["Eval B"],
-                "EvalC_move": moves["Eval C"],
+                "EvalA_move": move_a,
+                "EvalB_move": move_b,
+                "EvalC_move": move_c,
                 "EvalA_score": items["Eval A"]["best_score"],
                 "EvalB_score": items["Eval B"]["best_score"],
                 "EvalC_score": items["Eval C"]["best_score"],
@@ -225,6 +209,7 @@ def write_summary_markdown(path: Path, rows: List[Dict[str, object]]) -> None:
     lines = [
         "# Experiment 2 Evaluation Comparison Summary",
         "",
+        "This is a fresh rerun after Eval A was modified.",
         "Search: Alpha-Beta + move ordering.",
         "Depths: 1, 2, 3.",
         "Candidate rule: generate_candidate_moves(radius=2).",
@@ -238,12 +223,11 @@ def write_summary_markdown(path: Path, rows: List[Dict[str, object]]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Experiment 2: compare three evaluation functions."
-    )
+    parser = argparse.ArgumentParser(description="Experiment 2: compare evaluation functions.")
     parser.add_argument("--depths", nargs="+", type=int, default=[1, 2, 3])
     parser.add_argument("--output", type=Path, default=DETAIL_CSV)
     parser.add_argument("--summary-output", type=Path, default=SUMMARY_CSV)
+    parser.add_argument("--summary-compat-output", type=Path, default=SUMMARY_COMPAT_CSV)
     parser.add_argument("--summary-md", type=Path, default=SUMMARY_MD)
     parser.add_argument("--move-diff-output", type=Path, default=MOVE_DIFF_CSV)
     return parser.parse_args()
@@ -251,7 +235,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-
     if any(depth not in [1, 2, 3] for depth in args.depths):
         raise ValueError("Experiment 2 only supports depths 1, 2, and 3")
 
@@ -260,6 +243,7 @@ def main() -> None:
 
     summary_rows = build_summary_rows(detail_rows)
     write_csv(args.summary_output, summary_rows)
+    write_csv(args.summary_compat_output, summary_rows)
     write_summary_markdown(args.summary_md, summary_rows)
 
     move_diff_rows = build_move_diff_rows(detail_rows)
@@ -268,6 +252,7 @@ def main() -> None:
     differing = sum(1 for row in move_diff_rows if row["moves_differ"])
     print(f"Wrote detail CSV: {args.output}")
     print(f"Wrote summary CSV: {args.summary_output}")
+    print(f"Wrote compatibility summary CSV: {args.summary_compat_output}")
     print(f"Wrote summary Markdown: {args.summary_md}")
     print(f"Wrote best-move difference CSV: {args.move_diff_output}")
     print(f"Best moves differ in {differing}/{len(move_diff_rows)} position-depth cases")
