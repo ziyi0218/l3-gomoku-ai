@@ -6,7 +6,7 @@ from pathlib import Path
 if __package__ is None or __package__ == "":
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result5")
+RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result7")
 
 
 def load_rows(path: Path):

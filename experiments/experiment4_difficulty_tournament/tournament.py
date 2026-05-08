@@ -23,7 +23,7 @@ from experiments.experiment4_difficulty_tournament.profiles import (
 from game.board import Board
 from game.rules import get_winner, is_terminal
 
-RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result5")
+RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result7")
 MATCH_RESULTS_CSV = RESULT_DIR / "difficulty_match_results.csv"
 RANKING_CSV = RESULT_DIR / "difficulty_ai_ranking.csv"
 PAIRWISE_CSV = RESULT_DIR / "difficulty_pairwise_summary.csv"
@@ -58,7 +58,8 @@ def choose_ai_move(board: Board, player: int, profile: AIProfile):
         player=player,
         depth=profile.depth,
         eval_fn=profile.eval_fn,
-        use_ordering=True,
+        use_ordering=profile.use_ordering,
+        candidate_radius=profile.candidate_radius,
     )
     return move, stats
 

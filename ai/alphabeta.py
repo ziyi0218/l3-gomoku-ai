@@ -38,10 +38,11 @@ def choose_move_alphabeta(
     depth: int,
     eval_fn: EvalFn = eval_basic,
     use_ordering: bool = False,
+    candidate_radius: int = 2,
 ) -> Tuple[Optional[Move], float, AlphaBetaStats]:
     """Choose one move with Alpha-Beta pruning."""
     stats = AlphaBetaStats()
-    stats.candidate_count = len(generate_candidate_moves(board, radius=2))
+    stats.candidate_count = len(generate_candidate_moves(board, radius=candidate_radius))
 
     start = time.perf_counter()
     score, best_move = alphabeta(
@@ -55,6 +56,7 @@ def choose_move_alphabeta(
         stats=stats,
         current_depth=0,
         use_ordering=use_ordering,
+        candidate_radius=candidate_radius,
     )
     stats.time_ms = (time.perf_counter() - start) * 1000
 
@@ -103,6 +105,7 @@ def alphabeta(
     stats: AlphaBetaStats,
     current_depth: int,
     use_ordering: bool,
+    candidate_radius: int,
 ) -> Tuple[float, Optional[Move]]:
     """
     Alpha-Beta pruning version of Minimax.
@@ -115,7 +118,7 @@ def alphabeta(
     if depth == 0 or is_terminal(board):
         return eval_fn(board, root_player), None
 
-    moves = generate_candidate_moves(board, radius=2)
+    moves = generate_candidate_moves(board, radius=candidate_radius)
 
     if not moves:
         return eval_fn(board, root_player), None
@@ -142,6 +145,7 @@ def alphabeta(
                     stats=stats,
                     current_depth=current_depth + 1,
                     use_ordering=use_ordering,
+                    candidate_radius=candidate_radius,
                 )
                 board.undo()
 
@@ -172,6 +176,7 @@ def alphabeta(
                 stats=stats,
                 current_depth=current_depth + 1,
                 use_ordering=use_ordering,
+                candidate_radius=candidate_radius,
             )
             board.undo()
 

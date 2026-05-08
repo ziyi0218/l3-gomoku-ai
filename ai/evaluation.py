@@ -291,6 +291,50 @@ def score_open_segments(segments: List[Tuple[int, int]]) -> float:
     return score
 
 
+def score_open_segment_combinations(segments: List[Tuple[int, int]]) -> float:
+    """
+    Reward compound threats that basic open-segment scoring misses.
+
+    This stays simpler than Eval C: it only counts combinations of already
+    detected contiguous open segments and does not inspect all five-cell windows.
+    """
+    open_fours = 0
+    blocked_fours = 0
+    open_threes = 0
+    blocked_threes = 0
+
+    for length, open_ends in segments:
+        if length == 4:
+            if open_ends == 2:
+                open_fours += 1
+            elif open_ends == 1:
+                blocked_fours += 1
+        elif length == 3:
+            if open_ends == 2:
+                open_threes += 1
+            elif open_ends == 1:
+                blocked_threes += 1
+
+    score = 0.0
+
+    if open_threes >= 2:
+        score += 6_000
+
+    if open_threes >= 1 and blocked_fours >= 1:
+        score += 12_000
+
+    if open_threes >= 1 and open_fours >= 1:
+        score += 18_000
+
+    if blocked_fours >= 2:
+        score += 8_000
+
+    if open_threes >= 1 and blocked_threes >= 1:
+        score += 1_200
+
+    return score
+
+
 def eval_intermediate(board: Board, player: int) -> float:
     """
     Eval B:
@@ -303,10 +347,19 @@ def eval_intermediate(board: Board, player: int) -> float:
     if terminal is not None:
         return terminal
 
-    my_score = score_open_segments(collect_open_segments(board, player))
-    opp_score = score_open_segments(collect_open_segments(board, opponent(player)))
+    my_segments = collect_open_segments(board, player)
+    opp_segments = collect_open_segments(board, opponent(player))
 
-    return my_score - opp_score
+    my_score = (
+        score_open_segments(my_segments)
+        + score_open_segment_combinations(my_segments)
+    )
+    opp_score = (
+        score_open_segments(opp_segments)
+        + score_open_segment_combinations(opp_segments)
+    )
+
+    return my_score - 1.08 * opp_score
 
 
 # ============================================================
