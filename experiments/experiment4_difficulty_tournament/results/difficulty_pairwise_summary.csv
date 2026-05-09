@@ -1,4 +1,0 @@
-ai_1,ai_2,games,ai_1_wins,ai_2_wins,draws,ai_1_win_rate,ai_2_win_rate,ai_1_score_rate,ai_2_score_rate,avg_moves,avg_time_per_move_ai_1,avg_time_per_move_ai_2
-Easy,Hard,50,0,50,0,0.0,1.0,0.0,1.0,30.5,24.3952,864.0866
-Easy,Medium,50,0,50,0,0.0,1.0,0.0,1.0,21.5,14.2425,2782.1613
-Medium,Hard,50,0,50,0,0.0,1.0,0.0,1.0,33.5,5164.8379,1021.1281
