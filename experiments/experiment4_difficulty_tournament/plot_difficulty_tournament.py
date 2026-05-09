@@ -8,6 +8,12 @@ if __package__ is None or __package__ == "":
 
 RESULT_DIR = Path("experiments/experiment4_difficulty_tournament/result7")
 
+DIFFICULTY_ORDER = {
+    "Easy": 0,
+    "Medium": 1,
+    "Hard": 2,
+}
+
 
 def load_rows(path: Path):
     with path.open(newline="", encoding="utf-8") as file_obj:
@@ -28,6 +34,11 @@ def game_score_for_ai(game, ai_name):
     if game["winner"] == "draw":
         return 0.5
     return 1.0 if game["winner_ai"] == ai_name else 0.0
+
+
+def canonical_pair(ai_a, ai_b):
+    ordered = sorted((ai_a, ai_b), key=lambda name: DIFFICULTY_ORDER[name])
+    return ordered[0], ordered[1]
 
 
 def build_balanced_game_order(games, ai_1, ai_2):
@@ -55,14 +66,14 @@ def build_balanced_game_order(games, ai_1, ai_2):
 def build_cumulative_score_rates(rows):
     grouped = {}
     for row in rows:
-        pair_key = tuple(sorted((row["black_ai"], row["white_ai"])))
+        pair_key = canonical_pair(row["black_ai"], row["white_ai"])
         grouped.setdefault(pair_key, []).append(row)
 
     series = {}
     for pair_key, games in grouped.items():
-        ai_1, ai_2 = pair_key
-        tracked_ai = ai_2
-        ordered_games = build_balanced_game_order(games, ai_1, ai_2)
+        weaker_ai, stronger_ai = pair_key
+        tracked_ai = stronger_ai
+        ordered_games = build_balanced_game_order(games, weaker_ai, stronger_ai)
         cumulative_rates = []
         tracked_score = 0.0
 
@@ -76,13 +87,13 @@ def build_cumulative_score_rates(rows):
 
 
 def format_pair_label(pair_key):
-    ai_1, ai_2 = pair_key
+    weaker_ai, stronger_ai = pair_key
     french_names = {
         "Easy": "Facile",
         "Medium": "Moyen",
         "Hard": "Difficile",
     }
-    return f"{french_names[ai_2]} vs {french_names[ai_1]}"
+    return f"{french_names[stronger_ai]} vs {french_names[weaker_ai]}"
 
 
 def final_rate_text(values):
@@ -101,7 +112,9 @@ def plot_cumulative_win_rates(rows, results_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(10.5, 5.6))
     ax.axhline(50, color="gray", linestyle="--", linewidth=1.2, alpha=0.7, label="50 %")
 
-    for index, (color, pair_key) in enumerate(zip(colors, sorted(series.keys()))):
+    ordered_keys = sorted(series.keys(), key=lambda pair: (DIFFICULTY_ORDER[pair[1]], DIFFICULTY_ORDER[pair[0]]))
+
+    for index, (color, pair_key) in enumerate(zip(colors, ordered_keys)):
         values = series[pair_key]
         x_values = list(range(1, len(values) + 1))
         label_prefix = format_pair_label(pair_key)

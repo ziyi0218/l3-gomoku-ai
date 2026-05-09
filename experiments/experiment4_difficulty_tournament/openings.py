@@ -41,6 +41,19 @@ M1_CENTRAL_CROSS = [
     (8, 6, -1),
 ]
 
+M1_CENTRAL_CROSS_VARIANT = [
+    (7, 7, 1),
+    (7, 8, -1),
+    (8, 7, 1),
+    (6, 7, -1),
+    (8, 8, 1),
+    (6, 8, -1),
+    (7, 6, 1),
+    (8, 6, -1),
+    (6, 9, 1),
+    (9, 7, -1),
+]
+
 M2_OFFSET_TENSION = [
     (7, 7, 1),
     (7, 8, -1),
@@ -64,6 +77,19 @@ M3_DIAGONAL_BALANCE = [
     (5, 7, -1),
 ]
 
+M3_DIAGONAL_BALANCE_VARIANT = [
+    (7, 7, 1),
+    (8, 8, -1),
+    (6, 6, 1),
+    (7, 8, -1),
+    (8, 6, 1),
+    (6, 8, -1),
+    (9, 7, 1),
+    (5, 7, -1),
+    (7, 5, 1),
+    (8, 9, -1),
+]
+
 M4_WIDE_CENTER = [
     (7, 7, 1),
     (7, 9, -1),
@@ -74,6 +100,19 @@ M4_WIDE_CENTER = [
     (9, 7, 1),
     (5, 8, -1),
     (7, 5, 1),
+]
+
+M4_WIDE_CENTER_VARIANT = [
+    (7, 7, 1),
+    (7, 9, -1),
+    (8, 8, 1),
+    (6, 8, -1),
+    (8, 6, 1),
+    (6, 6, -1),
+    (9, 7, 1),
+    (5, 8, -1),
+    (7, 5, 1),
+    (8, 10, -1),
 ]
 
 M5_SIDE_EXPANSION = [
@@ -87,6 +126,20 @@ M5_SIDE_EXPANSION = [
     (8, 5, -1),
 ]
 
+M2_OFFSET_TENSION_MIRROR = mirror_columns(M2_OFFSET_TENSION)
+M2_OFFSET_TENSION_MIRROR_VARIANT = [
+    (7, 7, 1),
+    (7, 6, -1),
+    (8, 6, 1),
+    (6, 6, -1),
+    (8, 8, 1),
+    (6, 7, -1),
+    (9, 7, 1),
+    (7, 9, -1),
+    (5, 6, 1),
+    (9, 5, -1),
+]
+
 
 OPENING_POSITIONS = [
     OpeningPosition(
@@ -96,16 +149,16 @@ OPENING_POSITIONS = [
         description="Balanced central cluster with no immediate forcing line, Black to move.",
     ),
     OpeningPosition(
-        name="O2_offset_tension_white",
-        moves=M2_OFFSET_TENSION,
+        name="O2_central_cross_variant_white",
+        moves=swap_players(M1_CENTRAL_CROSS_VARIANT),
         player_to_move=-1,
-        description="Offset central tension with multiple extension choices, White to move.",
+        description="Expanded central-cross family with extra central stones, White to move.",
     ),
     OpeningPosition(
-        name="O3_diagonal_balance_black",
-        moves=M3_DIAGONAL_BALANCE,
+        name="O3_wide_center_variant_black",
+        moves=M4_WIDE_CENTER_VARIANT,
         player_to_move=1,
-        description="Diagonal-heavy balance position, Black to move.",
+        description="Wide-center family with one extra remote stone, Black to move.",
     ),
     OpeningPosition(
         name="O4_wide_center_white",
@@ -114,20 +167,20 @@ OPENING_POSITIONS = [
         description="Wider central spread that rewards planning over tactics, White to move.",
     ),
     OpeningPosition(
-        name="O5_side_expansion_black",
-        moves=M5_SIDE_EXPANSION,
+        name="O5_offset_tension_mirror_variant_black",
+        moves=M2_OFFSET_TENSION_MIRROR_VARIANT,
         player_to_move=1,
-        description="Asymmetric side expansion with several quiet continuations, Black to move.",
+        description="Expanded mirrored offset-tension family, Black to move.",
     ),
     OpeningPosition(
-        name="O6_central_cross_mirror_white",
-        moves=mirror_columns(swap_players(M1_CENTRAL_CROSS)),
+        name="O6_diagonal_balance_variant_white",
+        moves=swap_players(M3_DIAGONAL_BALANCE_VARIANT),
         player_to_move=-1,
-        description="Mirrored central cluster, White to move.",
+        description="Expanded diagonal-balance family, White to move.",
     ),
     OpeningPosition(
         name="O7_offset_tension_mirror_black",
-        moves=mirror_columns(M2_OFFSET_TENSION),
+        moves=M2_OFFSET_TENSION_MIRROR,
         player_to_move=1,
         description="Mirrored offset tension position, Black to move.",
     ),
@@ -138,15 +191,15 @@ OPENING_POSITIONS = [
         description="Mirrored diagonal balance position, White to move.",
     ),
     OpeningPosition(
-        name="O9_wide_center_mirror_black",
-        moves=mirror_columns(M4_WIDE_CENTER),
+        name="O9_central_cross_variant_black",
+        moves=M1_CENTRAL_CROSS_VARIANT,
         player_to_move=1,
-        description="Mirrored wide-center position, Black to move.",
+        description="Expanded central-cross family, Black to move.",
     ),
     OpeningPosition(
-        name="O10_side_expansion_mirror_white",
-        moves=mirror_columns(swap_players(M5_SIDE_EXPANSION)),
+        name="O10_diagonal_balance_white",
+        moves=swap_players(M3_DIAGONAL_BALANCE),
         player_to_move=-1,
-        description="Mirrored side-expansion position, White to move.",
+        description="Diagonal-balance family, White to move.",
     ),
 ]
