@@ -15,13 +15,15 @@ def play_human_vs_ai() -> None:
 
     current = HUMAN
 
-    difficulty_name, depth, eval_fn, eval_name, search_name = ask_ai_difficulty()
+    profile = ask_ai_difficulty()
 
     print("\nHuman vs AI started.")
-    print(f"AI difficulty = {difficulty_name}")
-    print(f"AI search = {search_name}")
-    print(f"AI depth = {depth}")
-    print(f"AI evaluation = {eval_name}")
+    print(f"AI difficulty = {profile.name} ({profile.label})")
+    print(f"AI search = {profile.search_name}")
+    print(f"AI ordering = {'on' if profile.use_ordering else 'off'}")
+    print(f"AI candidate radius = {profile.candidate_radius}")
+    print(f"AI depth = {profile.depth}")
+    print(f"AI evaluation = {profile.eval_name}")
     print("Input: row col, for example: 7 7 or 7,7")
     print("Commands: u = undo, q = quit\n")
 
@@ -67,10 +69,12 @@ def play_human_vs_ai() -> None:
             r, c = ai_move(
                 board=board,
                 player=AI,
-                depth=depth,
-                eval_fn=eval_fn,
-                eval_name=eval_name,
-                search_name=search_name,
+                depth=profile.depth,
+                eval_fn=profile.eval_fn,
+                eval_name=profile.eval_name,
+                search_name=profile.search_name,
+                use_ordering=profile.use_ordering,
+                candidate_radius=profile.candidate_radius,
             )
 
             board.place(r, c, AI)
