@@ -19,7 +19,7 @@ from experiments.experiment3_candidate_tournament.profiles import (
 from game.board import Board
 from game.rules import get_winner, is_terminal
 
-RESULT_DIR = Path("experiments/experiment3_candidate_tournament/results2")
+RESULT_DIR = Path("experiments/experiment3_candidate_tournament/results")
 MATCH_RESULTS_CSV = RESULT_DIR / "candidate_match_results.csv"
 RANKING_CSV = RESULT_DIR / "candidate_ai_ranking.csv"
 PAIRWISE_CSV = RESULT_DIR / "candidate_pairwise_summary.csv"
@@ -175,18 +175,60 @@ def run_game_job(job) -> GameResult:
     return play_ai_vs_ai(black_ai, white_ai, game_id, pair_id, max_moves)
 
 
+def job_cache_key(job):
+    black_ai, white_ai, _, _, max_moves = job
+    return black_ai.name, white_ai.name, max_moves
+
+
+def clone_game_result(template: GameResult, game_id: int, pair_id: str) -> GameResult:
+    return GameResult(
+        game_id=game_id,
+        pair_id=pair_id,
+        black_ai=template.black_ai,
+        white_ai=template.white_ai,
+        winner=template.winner,
+        winner_ai=template.winner_ai,
+        result_for_black=template.result_for_black,
+        moves_count=template.moves_count,
+        black_total_time_ms=template.black_total_time_ms,
+        white_total_time_ms=template.white_total_time_ms,
+        black_avg_time_ms=template.black_avg_time_ms,
+        white_avg_time_ms=template.white_avg_time_ms,
+        black_total_nodes=template.black_total_nodes,
+        white_total_nodes=template.white_total_nodes,
+        black_avg_nodes=template.black_avg_nodes,
+        white_avg_nodes=template.white_avg_nodes,
+        black_was_first=template.black_was_first,
+        max_moves_reached=template.max_moves_reached,
+    )
+
+
+def expand_cached_results(jobs, cache: Dict[tuple, GameResult]) -> List[GameResult]:
+    results = []
+    for job in jobs:
+        _, _, game_id, pair_id, _ = job
+        results.append(clone_game_result(cache[job_cache_key(job)], game_id, pair_id))
+    return results
+
+
 def run_round_robin(games_per_pair: int, max_moves: int) -> List[GameResult]:
     jobs = build_game_jobs(games_per_pair, max_moves)
-
-    results: List[GameResult] = []
-    total_games = len(jobs)
-
+    unique_jobs = {}
     for job in jobs:
-        black_ai, white_ai, game_id, _, _ = job
-        print(f"Game {game_id}/{total_games}: {black_ai.name} black vs {white_ai.name} white")
-        results.append(run_game_job(job))
+        unique_jobs.setdefault(job_cache_key(job), job)
 
-    return results
+    cache: Dict[tuple, GameResult] = {}
+    total_games = len(unique_jobs)
+
+    for index, job in enumerate(unique_jobs.values(), start=1):
+        black_ai, white_ai, game_id, _, _ = job
+        print(
+            f"Unique game {index}/{total_games}: "
+            f"{black_ai.name} black vs {white_ai.name} white"
+        )
+        cache[job_cache_key(job)] = run_game_job(job)
+
+    return expand_cached_results(jobs, cache)
 
 
 def run_round_robin_parallel(
@@ -195,22 +237,28 @@ def run_round_robin_parallel(
     workers: int,
 ) -> List[GameResult]:
     jobs = build_game_jobs(games_per_pair, max_moves)
-    total_games = len(jobs)
-    results: List[GameResult] = []
+    unique_jobs = {}
+    for job in jobs:
+        unique_jobs.setdefault(job_cache_key(job), job)
+
+    total_games = len(unique_jobs)
+    cache: Dict[tuple, GameResult] = {}
 
     with ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(run_game_job, job): job for job in jobs}
+        futures = {executor.submit(run_game_job, job): job for job in unique_jobs.values()}
         completed = 0
 
         for future in as_completed(futures):
             result = future.result()
-            results.append(result)
+            job = futures[future]
+            cache[job_cache_key(job)] = result
             completed += 1
             print(
                 f"Completed {completed}/{total_games}: "
                 f"game {result.game_id} {result.black_ai} vs {result.white_ai}"
             )
 
+    results = expand_cached_results(jobs, cache)
     results.sort(key=lambda result: result.game_id)
     return results
 

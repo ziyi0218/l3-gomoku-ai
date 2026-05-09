@@ -2,42 +2,31 @@
 
 ## 1. Objective
 
-Experiment 3 is a small candidate AI selection tournament. Its goal is to select
-reasonable Easy / Medium / Hard candidates for the final formal tournament.
+Experiment 3 is a candidate AI selection tournament. Its goal is to compare
+reasonable search/evaluation/depth combinations and identify suitable candidates
+for the final Easy / Medium / Hard setup.
 
-This is not the final tournament. The final tournament will later use only the
-selected Easy / Medium / Hard configurations and should satisfy the larger match
-count requirement.
+This experiment is a screening step, not the final formal difficulty tournament.
 
 ## 2. Candidate Selection Rationale
 
 Experiment 1 showed that Alpha-Beta pruning with move ordering is much more
-efficient than pure Minimax. Therefore, all candidate AIs in Experiment 3 use:
+efficient than pure Minimax. Therefore, every candidate in Experiment 3 uses:
 
 ```text
 Alpha-Beta + move ordering
 ```
 
-Experiment 2 compared Eval A, Eval B, and Eval C.
+Experiment 2 compared the evaluation functions. The current candidate set keeps
+Eval A and Eval B across depths 1, 2, and 3.
 
-### Why C1 is not included
+Eval C candidates are excluded from the current run:
 
-`C1 = Eval C + depth 1` is not included. Although its runtime is acceptable,
-depth 1 is too shallow to properly express Eval C's five-cell window potential.
-It would mostly test a complex static evaluation without enough search depth, so
-it is not a useful candidate for this screening round.
-
-### Why C3 is not included
-
-`C3 = Eval C + depth 3` is not included. Experiment 2 showed that Eval C at
-depth 3 has a very high average per-move runtime. It is clearly above the
-practical time range for a tournament requiring many games.
-
-### Why C2 is included
-
-`C2 = Eval C + depth 2` is included. It is much slower than A2 and B2, but still
-below the practical threshold compared with C3. It lets us test whether a more
-complex evaluation can compensate for shallower search depth.
+- `C1 = Eval C + depth 1` is excluded because depth 1 is too shallow to express
+  Eval C's five-cell window potential.
+- `C3 = Eval C + depth 3` is excluded because Experiment 2 showed excessive
+  per-move runtime.
+- Depth 4 is not tested.
 
 ## 3. Candidate Configurations
 
@@ -47,24 +36,28 @@ complex evaluation can compensate for shallower search depth.
 |B1|Alpha-Beta + ordering|Eval B|1|
 |A2|Alpha-Beta + ordering|Eval A|2|
 |B2|Alpha-Beta + ordering|Eval B|2|
-|C2|Alpha-Beta + ordering|Eval C|2|
 |A3|Alpha-Beta + ordering|Eval A|3|
 |B3|Alpha-Beta + ordering|Eval B|3|
 
-No C1, no C3, and no depth 4 are used.
-
 ## 4. Tournament Protocol
 
-The script runs a round-robin tournament:
+The current script runs a round-robin tournament:
 
-- 7 AIs;
-- 21 pairings;
+- 6 AIs;
+- 15 pairings;
 - default 10 games per pair;
 - each pair swaps first player evenly;
 - board size: 15x15;
 - candidate generator: current project default `generate_candidate_moves(radius=2)`;
-- max moves: default 80;
-- if no player wins before max moves, the game is recorded as draw.
+- default `max_moves = 50`;
+- default workers: 4;
+- if no player wins before `max_moves`, the game is recorded as draw.
+
+The AIs are deterministic, so each repeated game with the same black AI, white
+AI, and max-move cap produces the same move sequence. To keep the tournament
+configuration unchanged while reducing unnecessary runtime, the script computes
+each unique black/white direction once and expands it into the full repeated
+game table. The output still contains 150 game rows.
 
 Recorded metrics include:
 
@@ -75,23 +68,29 @@ Recorded metrics include:
 - black/white performance;
 - max-move draw status.
 
+The script now writes directly to:
+
+```text
+experiments/experiment3_candidate_tournament/results
+```
+
 ## 5. Outputs
 
-The tournament writes:
+The final result directory contains:
 
 - `results/candidate_match_results.csv`
 - `results/candidate_ai_ranking.csv`
 - `results/candidate_ai_ranking.md`
 - `results/candidate_pairwise_summary.csv`
-
-After plotting:
-
 - `results/candidate_win_rate.png`
 - `results/candidate_avg_time.png`
 - `results/candidate_strength_vs_time.png`
 
+The old `results2` staging directory and local `.Rhistory` file have been
+removed.
+
 The main ranking is sorted by `score_rate`, then `win_rate`, then
-`avg_time_per_move_ms`.
+`avg_time_per_move_ms`, then `avg_nodes_per_move`.
 
 ```text
 score_rate = (wins + 0.5 * draws) / games
@@ -99,44 +98,39 @@ score_rate = (wins + 0.5 * draws) / games
 
 ## 6. Results
 
-The full candidate tournament was run with:
+The final candidate tournament was run with:
 
 ```text
+candidate AIs = 6
+pairings = 15
 games_per_pair = 10
-max_moves = 10
-total games = 210
+max_moves = 50
+total games = 150
 ```
-
-The shorter `max_moves` was used because a previous attempt with the larger
-default move cap did not finish within one hour. This keeps Experiment 3 useful
-as a candidate screening tournament, but it also means the result is affected by
-the max-move draw rule and first-player advantage. The final formal tournament
-should use a larger move cap.
 
 Overall game outcomes:
 
 ```text
-Black wins: 90
-White wins: 0
-Draws: 120
+Black wins: 55
+White wins: 65
+Draws: 30
+Max-move draws: 30
+Average game length: 28.17 moves
 ```
 
-The absence of white wins indicates a strong first-player advantage under this
-short max-move setting. For this reason, `score_rate` and runtime should be read
-together, and these results should be used for screening rather than final
-claims.
+Black and white wins are reasonably balanced in this result set. The 30 draws
+correspond to games that reached the 50-move cap.
 
 ### Main Ranking
 
 |AI|Eval|Depth|Games|Wins|Losses|Draws|Win rate|Score rate|Avg time / move (ms)|Avg nodes / move|Black win rate|White win rate|
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-|B2|Eval B|2|60|20|0|40|0.3333|0.6667|757.4528|121.52|0.6667|0.0|
-|B3|Eval B|3|60|20|0|40|0.3333|0.6667|3528.0546|1792.43|0.6667|0.0|
-|C2|Eval C|2|60|20|0|40|0.3333|0.6667|9652.4646|125.95|0.6667|0.0|
-|A2|Eval A|2|60|10|15|35|0.1667|0.4583|530.6449|110.77|0.3333|0.0|
-|A3|Eval A|3|60|10|15|35|0.1667|0.4583|2313.8101|1623.63|0.3333|0.0|
-|A1|Eval A|1|60|5|30|25|0.0833|0.2917|14.4198|35.13|0.1667|0.0|
-|B1|Eval B|1|60|5|30|25|0.0833|0.2917|18.5791|35.13|0.1667|0.0|
+|B3|Eval B|3|50|40|5|5|0.8|0.85|20273.7115|3883.32|0.8|0.8|
+|B2|Eval B|2|50|25|10|15|0.5|0.65|8562.2576|254.19|0.4|0.6|
+|A3|Eval A|3|50|25|15|10|0.5|0.6|40418.5438|4431.65|0.6|0.4|
+|A1|Eval A|1|50|20|20|10|0.4|0.5|188.2727|65.48|0.2|0.6|
+|A2|Eval A|2|50|10|20|20|0.2|0.4|12109.1278|234.81|0.2|0.2|
+|B1|Eval B|1|50|0|50|0|0.0|0.0|83.816|54.68|0.0|0.0|
 
 ![Candidate win rate](results/candidate_win_rate.png)
 
@@ -150,65 +144,54 @@ Important pairwise comparisons:
 
 |Pair|Result|Interpretation|
 |---|---|---|
-|A2 vs B2|B2 wins 5, A2 wins 0, draws 5|At the same depth, Eval B clearly outperforms Eval A in this screening setup.|
-|A3 vs B3|B3 wins 5, A3 wins 0, draws 5|At depth 3, Eval B again outperforms Eval A.|
-|B2 vs B3|10 draws|Depth 3 did not beat depth 2 under the short max-move setting, but B3 is much slower.|
-|B2 vs C2|10 draws|Eval C depth 2 did not outperform Eval B depth 2, while being much slower.|
-|C2 vs B3|10 draws|C2 and B3 tied directly, but C2 is slower per move than B3 in this run.|
+|A1 vs A2|10 draws|Depth 2 did not convert the direct matchup within the 50-move cap.|
+|A1 vs A3|A3 wins 10-0|Depth 3 Eval A strongly outperforms A1.|
+|A1 vs B1|A1 wins 10-0|At depth 1, Eval A performs better than Eval B in this direct matchup.|
+|A1 vs B2|5-5 split|Eval B depth 2 no longer dominates A1 directly after the Eval B update.|
+|A1 vs B3|5-5 split|B3 also splits with A1 in this deterministic pairing.|
+|A2 vs A3|A3 wins 5, draws 5|Depth 3 improves over depth 2 for Eval A.|
+|A2 vs B2|B2 wins 5, draws 5|Eval B depth 2 outperforms Eval A depth 2.|
+|A2 vs B3|B3 wins 10-0|B3 clearly beats A2.|
+|A3 vs B3|B3 wins 10-0|Eval B depth 3 strongly outperforms Eval A depth 3.|
+|B1 vs B2|B2 wins 10-0|Increasing Eval B from depth 1 to depth 2 is a major improvement.|
+|B1 vs B3|B3 wins 10-0|B3 also clearly beats B1.|
+|B2 vs B3|B3 wins 5, draws 5|B3 now has a direct advantage over B2, but with much higher runtime.|
 
-These results suggest that Eval B is the best evaluation family among the
-practical candidates. Eval C did not show a strength advantage over B2/B3 here,
-but it had a much higher runtime.
+## 8. Interpretation
 
-## 8. Interpretation Guide
+The strongest candidate by score rate is now `B3`, with `0.85`. It also wins
+the direct matchup against `B2` with five wins and five draws.
 
-When interpreting results, do not rank by strength alone and do not rank by time
-alone. The key question is the strength-runtime trade-off.
+`B2` remains the best lower-depth Eval B candidate. It is much faster than `B3`
+and has a strong score rate of `0.65`, but the new tournament does not show it
+as the top overall candidate.
 
-Important comparisons:
-
-- A1 vs B1: easy-level simple evaluation versus open-shape evaluation.
-- A2 vs B2: whether Eval B helps at the same depth.
-- A3 vs B2: deeper search with simpler evaluation versus shallower search with
-  better shape evaluation.
-- B3 vs C2: deeper medium-cost evaluation versus shallower expensive evaluation.
-- C2: whether Eval C is worth its higher cost.
-
-If C2 does not clearly outperform B2 or B3 while being much slower, it should
-not be selected for the final formal tournament.
+`A3` improves over the shallower Eval A candidates and scores above `A1` and
+`A2`, but it is slower than `B3` while scoring lower. `A1` is still a useful
+easy-level candidate because it is simple and wins several matchups. `A2` draws
+many games and has weaker score rate. `B1` is very fast but loses every game in
+this run.
 
 ## 9. Proposed Final Configurations
 
 Based on this run:
 
-- Easy: `B1`
+- Easy: `A1`
 - Medium: `B2`
 - Hard: `B3`
 
 Rationale:
 
-- `B1` is low cost and uses the stronger Eval B family.
-- `B2` has the best score-rate tier while staying much faster than B3 and C2.
-- `B3` ties B2 and C2 in score rate, but it is much faster than C2 and is the
-  deepest Eval B candidate.
+- `A1` is fast and meaningfully stronger than `B1`, making it a better low-level
+  candidate.
+- `B2` provides a strong middle tier and is much cheaper than `B3`.
+- `B3` is the strongest candidate by score rate after the Eval B rerun.
 
-`C2` is not recommended for the final formal tournament based on this run. It
-does not clearly outperform B2 or B3, while its average time per move is much
-higher.
+`A3` remains an alternate medium candidate if the final setup wants to preserve
+an Eval A-based middle level, but its runtime is high compared with its score
+rate.
 
-## 10. Proposed Final Configuration Rule
-
-Use the generated ranking and runtime table to choose:
-
-- Easy: usually a low-depth configuration such as A1 or B1.
-- Medium: a balanced configuration such as B2 or A3.
-- Hard: the strongest acceptable configuration, likely B3 or C2 depending on
-  the actual strength-runtime trade-off.
-
-The final recommendation should be based on the generated CSV results, not hard
-coded in advance.
-
-## 11. How to Run
+## 10. How to Run
 
 Default candidate tournament:
 
@@ -222,23 +205,13 @@ Faster smoke run:
 python experiments/experiment3_candidate_tournament/candidate_tournament.py --games-per-pair 2 --max-moves 40
 ```
 
-Runtime note: because A3 and B3 search at depth 3, the full default run can be
-slow. A short smoke run can verify CSV generation, but conclusions should be
-based on a full or explicitly reported candidate run.
-
-If the top candidates remain too close after 10 games per pair:
+Single-worker run:
 
 ```bash
-python experiments/experiment3_candidate_tournament/candidate_tournament.py --games-per-pair 20
+python experiments/experiment3_candidate_tournament/candidate_tournament.py --workers 1
 ```
 
-Parallel execution is supported:
-
-```bash
-python experiments/experiment3_candidate_tournament/candidate_tournament.py --workers 4
-```
-
-Generate plots:
+Generate plots from the existing result CSV:
 
 ```bash
 python experiments/experiment3_candidate_tournament/plot_candidate_tournament.py

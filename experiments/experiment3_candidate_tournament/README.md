@@ -1,21 +1,20 @@
 # Experiment 3: Candidate AI Selection Tournament
 
-This experiment runs a small round-robin tournament to screen candidate AI
-configurations for the final Easy / Medium / Hard setup.
+This experiment screens candidate AI configurations before the final
+Easy / Medium / Hard tournament.
 
-It is not the final formal tournament.
+The current experiment uses six deterministic Alpha-Beta candidates:
 
-Candidate AIs:
+|AI|Search|Evaluation|Depth|
+|---|---|---|---|
+|A1|Alpha-Beta + ordering|Eval A|1|
+|B1|Alpha-Beta + ordering|Eval B|1|
+|A2|Alpha-Beta + ordering|Eval A|2|
+|B2|Alpha-Beta + ordering|Eval B|2|
+|A3|Alpha-Beta + ordering|Eval A|3|
+|B3|Alpha-Beta + ordering|Eval B|3|
 
-- A1 = Alpha-Beta + ordering + Eval A + depth 1
-- B1 = Alpha-Beta + ordering + Eval B + depth 1
-- A2 = Alpha-Beta + ordering + Eval A + depth 2
-- B2 = Alpha-Beta + ordering + Eval B + depth 2
-- C2 = Alpha-Beta + ordering + Eval C + depth 2
-- A3 = Alpha-Beta + ordering + Eval A + depth 3
-- B3 = Alpha-Beta + ordering + Eval B + depth 3
-
-Excluded:
+Excluded profiles:
 
 - C1 is excluded because Eval C at depth 1 is too shallow to show the value of
   five-window potential.
@@ -30,28 +29,28 @@ python experiments/experiment3_candidate_tournament/candidate_tournament.py
 
 Default protocol:
 
-- 7 candidate AIs
-- 21 pairings
+- 6 candidate AIs
+- 15 pairings
 - 10 games per pair
 - 5 games with each AI as black
-- `max_moves = 80`
+- `max_moves = 50`
+- output directory: `experiments/experiment3_candidate_tournament/results`
+
+Parallel execution is enabled by default with `--workers 4`. Because all AIs are
+deterministic, the script computes each unique black/white pairing once and then
+expands the repeated games into the full 150-row result table. This preserves the
+same tournament protocol while avoiding repeated identical searches.
+
+For a single-worker run:
+
+```bash
+python experiments/experiment3_candidate_tournament/candidate_tournament.py --workers 1
+```
 
 For a faster smoke run:
 
 ```bash
 python experiments/experiment3_candidate_tournament/candidate_tournament.py --games-per-pair 2 --max-moves 40
-```
-
-If the top candidates remain too close after 10 games per pair:
-
-```bash
-python experiments/experiment3_candidate_tournament/candidate_tournament.py --games-per-pair 20
-```
-
-Parallel execution is supported:
-
-```bash
-python experiments/experiment3_candidate_tournament/candidate_tournament.py --workers 4
 ```
 
 Outputs:
@@ -61,20 +60,17 @@ Outputs:
 - `results/candidate_ai_ranking.md`
 - `results/candidate_pairwise_summary.csv`
 
-Generate plots after running:
+Generate plots from the existing CSV results:
 
 ```bash
 python experiments/experiment3_candidate_tournament/plot_candidate_tournament.py
 ```
 
-For a custom output directory:
-
-```bash
-python experiments/experiment3_candidate_tournament/plot_candidate_tournament.py --results-dir experiments/experiment3_candidate_tournament/results_smoke
-```
-
 Plot outputs:
 
-- `candidate_win_rate.png`
-- `candidate_avg_time.png`
-- `candidate_strength_vs_time.png`
+- `results/candidate_win_rate.png`
+- `results/candidate_avg_time.png`
+- `results/candidate_strength_vs_time.png`
+
+Current final results are stored in `results`. The old `results2` staging
+directory has been removed.
