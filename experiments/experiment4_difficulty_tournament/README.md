@@ -1,39 +1,40 @@
 # Experiment 4: Final Difficulty Tournament
 
-Experiment 4 validates the final Easy / Medium / Hard AI difficulty settings
-using a larger deterministic tournament.
+Experiment 4 validates Easy / Medium / Hard AI difficulty settings using fixed
+opening positions and round-robin tournaments.
 
-The final result set is stored in:
+This folder currently keeps two result sets:
 
-```text
-result12/
-```
+|Result folder|Setup|Purpose|
+|---|---|---|
+|`result(A1_A3_B2)`|Easy = A1, Medium = A3, Hard = B2|Earlier final setup.|
+|`result(A1_B2_B3)`|Easy = A1, Medium = B2, Hard = B3|Updated recommended setup after the Eval B rerun.|
 
-Older intermediate result folders were removed during cleanup.
-
-## Final Configurations
+## Recommended Final Configurations
 
 |Difficulty|Profile|Search|Evaluation|Depth|Candidate radius|
 |---|---|---|---|---|---|
 |Easy|A1|Alpha-Beta|Eval A|1|2|
-|Medium|A3|Alpha-Beta + ordering|Eval A|3|2|
-|Hard|B2|Alpha-Beta + ordering|Eval B|2|3|
+|Medium|B2|Alpha-Beta + ordering|Eval B|2|3|
+|Hard|B3|Alpha-Beta + ordering|Eval B|3|2|
 
 ## Tournament Protocol
 
 - 3 difficulty AIs: Easy, Medium, Hard.
 - Round-robin tournament.
 - 3 pairs total.
-- 200 games per pair.
-- 600 games total.
-- Fixed opening positions are used to avoid evaluating only one deterministic
-  game path.
+- Fixed opening positions.
 - Max moves: 50.
 - Draws occur when the game reaches the max-move limit.
 
+The current result folders have different sample sizes:
+
+- `result(A1_A3_B2)`: 200 games per pair, 600 games total.
+- `result(A1_B2_B3)`: 50 games per pair, 150 games total.
+
 ## Outputs
 
-Final CSV and plot outputs are in `result12/`:
+Each result folder contains:
 
 - `difficulty_match_results.csv`
 - `difficulty_ai_ranking.csv`
@@ -46,20 +47,16 @@ Final CSV and plot outputs are in `result12/`:
 
 ## How to Reproduce
 
-Run the full tournament:
+Run the tournament:
 
 ```bash
 python experiments/experiment4_difficulty_tournament/tournament.py
 ```
 
-Regenerate plots from `result12`:
+Regenerate plots:
 
 ```bash
 python experiments/experiment4_difficulty_tournament/plot_difficulty_tournament.py
 ```
 
-The default output directory is:
-
-```text
-experiments/experiment4_difficulty_tournament/result12
-```
+See `REPORT.md` for the comparison between both result sets.

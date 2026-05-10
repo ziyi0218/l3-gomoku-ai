@@ -42,13 +42,13 @@ Le menu propose :
 3. `Quit`.
 
 En mode `Human vs AI`, les difficultes disponibles sont celles validees par
-l'Experience 4 :
+l'Experience 4 et la mise a jour apres le nouveau tournoi candidat :
 
 |Difficulte|Configuration|Evaluation|Profondeur|Recherche|
 |---|---|---|---|---|
 |Easy|A1|Eval A|1|Alpha-Beta|
-|Medium|A3|Eval A|3|Alpha-Beta + ordering|
-|Hard|B2|Eval B|2|Alpha-Beta + ordering|
+|Medium|B2|Eval B|2|Alpha-Beta + ordering|
+|Hard|B3|Eval B|3|Alpha-Beta + ordering|
 
 Un mode `Custom` permet aussi de choisir manuellement l'evaluation, la profondeur
 et le rayon de generation des coups candidats. La recherche y est fixee a
@@ -83,6 +83,8 @@ et le rayon de generation des coups candidats. La recherche y est fixee a
     |-- experiment2_evaluations/
     |-- experiment3_candidate_tournament/
     `-- experiment4_difficulty_tournament/
+        |-- result(A1_A3_B2)/
+        `-- result(A1_B2_B3)/
 ```
 
 ## Dossiers principaux
@@ -116,5 +118,23 @@ Les experiences sont organisees dans `experiments/` :
 - `experiment2_evaluations/` : comparaison des fonctions d'evaluation ;
 - `experiment3_candidate_tournament/` : selection des configurations candidates ;
 - `experiment4_difficulty_tournament/` : validation finale Easy / Medium / Hard.
+  Ce dossier contient deux resultats : l'ancien setup `A1/A3/B2` et le setup
+  recommande `A1/B2/B3`.
 
 Chaque dossier contient ses scripts, ses resultats et son rapport.
+
+## Configuration finale recommandee
+
+La configuration actuellement recommandee est :
+
+|Difficulte|Profil|Description|
+|---|---|---|
+|Easy|A1|Eval A, profondeur 1, rapide et faible|
+|Medium|B2|Eval B, profondeur 2, bon compromis force/temps|
+|Hard|B3|Eval B, profondeur 3, configuration la plus forte|
+
+Les resultats correspondants sont dans :
+
+```text
+experiments/experiment4_difficulty_tournament/result(A1_B2_B3)
+```
