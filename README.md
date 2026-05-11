@@ -29,6 +29,14 @@ Installer les dependances :
 python -m pip install -r requirements.txt
 ```
 
+Sous Linux/macOS, si la commande `python` pointe vers Python 2 ou n'existe pas,
+utiliser :
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 main.py
+```
+
 Lancer le menu principal :
 
 ```bash
